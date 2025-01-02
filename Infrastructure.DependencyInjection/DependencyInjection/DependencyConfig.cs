@@ -18,7 +18,7 @@ namespace Infrastructure.DependencyInjection
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
 
-            // Đăng ký tất cả các dịch vụ của Infrastructure
+            // Đăng ký tất cả các dịch vụ của Infrastructure hello
             services.AddScoped<IProductRepository, ProductRepository>();
 
             return services;
