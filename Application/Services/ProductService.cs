@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
 using Domain.IRepositories.SqlServer;
+using Domain.Querys;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,12 @@ namespace Application.Services
             _productRepository = productRepository;
         }
 
-        public List<Product> XemDanhSach()
+        public List<Product_Entity> TestGetPaged(ProductQuery productQuery)
+        {
+            return _productRepository.GetPaged(productQuery);
+        }
+
+        public List<Product_Entity> XemDanhSach()
         {
             return _productRepository.XemDanhSach();
         }

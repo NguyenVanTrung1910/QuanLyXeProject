@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace Domain.Querys.Base
+﻿namespace Domain.Querys.Base
 {
     [Serializable]
-    public struct SortQuery
+    public struct Sort
     {
         public string field { get; set; }
         public string dir { get; set; }

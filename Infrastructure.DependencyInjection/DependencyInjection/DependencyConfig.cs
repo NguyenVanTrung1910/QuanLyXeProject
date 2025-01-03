@@ -1,4 +1,6 @@
 ﻿using Domain.IRepositories.SqlServer;
+using Domain.Querys.Base;
+using Infrastructure.Persitence.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +22,8 @@ namespace Infrastructure.DependencyInjection
 
             // Đăng ký tất cả các dịch vụ của Infrastructure hello
             services.AddScoped<IProductRepository, ProductRepository>();
-
+            services.AddScoped<ResponeActionResult>();
+            services.AddScoped<IUnitOfWork, EFUnitOfWork>();
             return services;
         }
     }

@@ -18,7 +18,7 @@ namespace CMS.Controllers
 
         public IActionResult Index()
         {
-            var a = _productService.XemDanhSach();
+            var a = _productService.TestGetPaged(new Domain.Querys.ProductQuery());
             return View(a);
         }
 

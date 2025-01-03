@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+﻿using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -12,6 +12,7 @@ namespace Infrastructure.DependencyInjection
     public class DBContext : DbContext
     {
         public DbSet<Product> Product { get; set; }
+        public DBContext() { }
 
         public DBContext(DbContextOptions<DBContext> options)
         : base(options)
