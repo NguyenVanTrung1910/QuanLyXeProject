@@ -1,0 +1,29 @@
+using SIDVC.Core.Domain.Entities.Sharepoint;
+using SIDVC.Core.Domain.Querys.Query;
+using System.Collections.Generic;
+using Microsoft.SharePoint;
+
+namespace SIDVC.Core.Domain.Repositories.Sharepoint
+{
+
+    public interface I@EntityRaw@Repository
+    {
+        void Add(@EntityRaw@ item);
+        int AddReturnID(@EntityRaw@ item);
+        void Update(@EntityRaw@ item);
+        void Delete(int itemId);
+        bool HasDuplicateByField(string field, string value);
+        void UpdateSPModerationStatus(int id, SPModerationStatusType SPModeration);
+        string Approved(int itemId);
+        string Disapproval(int itemId);
+        @EntityRaw@ GetById(int itemId);
+        List<@EntityRaw@> GetPaged(CQuery query);
+
+        void ChangeListsByUrl(string url);
+        string UpdateOneField(int ItemID, string Field, object Values, bool overwrite = true);
+        string UpdateOneOrMoreField(int ItemID, Dictionary<string, object> Values);
+
+
+    }
+
+}

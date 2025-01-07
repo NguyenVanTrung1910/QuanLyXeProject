@@ -1,0 +1,20 @@
+using SIDVC.Core.Domain.Entities.Sharepoint;
+using SIDVC.Core.Domain.Querys;
+using SIDVC.Shared;
+using System.Collections.Generic;
+
+namespace SIDVC.Application.Interfaces
+{
+    public interface I@EntityRaw@Service
+    {
+        @EntityRaw@ GetById(int id);
+        void Add(@EntityRaw@ item);
+        int AddReturnID(@EntityRaw@ item);
+        void Remove(int id);
+        void Update(@EntityRaw@ item);
+        DataTableJson GetPaged(@EntityRaw@Query query);
+        void DisapprovedItem(int ID);
+        void ApprovedItem(int ID);
+        void UpdateOneMoreFields(int ID, Dictionary<string, object> _dic);
+    }
+}

@@ -1,7 +1,10 @@
 ﻿using Domain.Entities;
 using Domain.Models;
+using Domain.Querys;
+using Domain.Querys.Base;
 using Infrastructure.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +15,15 @@ namespace Infrastructure.Persitence.SqlServer
 {
     public partial class ProductRepository : EFRepository<Product>
     {
-        public int TotalRecord = 0;
-        
+        public int TotalRecord
+        {
+            get
+            {
+                return Total;
+            }
+        }
+        public int Total = 0;
+
         public ProductRepository(IUnitOfWork unitOfWork)
         {
             UnitOfWork = unitOfWork;
@@ -25,22 +35,7 @@ namespace Infrastructure.Persitence.SqlServer
                 DBContext context = (DBContext)UnitOfWork.Context;
                 return context.Product.First(dk => dk.Id == Id);
             }
-            catch { return null; }
-        }
-
-        public Product SaveReturnToObject(Product obj)
-        {
-            try
-            {
-                DBContext context = (DBContext)UnitOfWork.Context;
-                context.Product.Add(obj);
-                context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message + ex.StackTrace + ex.Source);
-            }
-            return obj;
+            catch { return new Product(); }
         }
         public void BulkInsert(List<Product> lstEntity, int packageSize = 1000, bool recreateContext = false)
         {
@@ -61,44 +56,64 @@ namespace Infrastructure.Persitence.SqlServer
             context.SaveChanges();
         }
 
-        public int DeleteById(int Id)
+
+        public void Insert(Product item)
         {
-            try
-            {
-                Product entity = this.GetById(Id);
-                if (entity != null)
-                    this.Delete(entity);
-                return 1;
-            }
-            catch { return 0; }
+            var context = (DBContext)UnitOfWork.Context;
+            context.Product.Add(item);
+            context.SaveChanges();
         }
 
-        public List<string> DeleteByIds(string ItemId, string returnField = "TEN")
+        public void DeleteById(int id)
         {
-            string[] arrItemID = ItemId.Split(',');
-            List<string> lstObjectID = new List<string>();
-            List<string> lstObjectName = new List<string>();
-            DBContext context = (DBContext)UnitOfWork.Context;
-            foreach (string Id in arrItemID)
+            Product entity = this.GetById(id);
+            if (entity != null)
             {
-                try
-                {
-                    string deleteCommand = string.Format("DELETE FROM MenuNguoiDungs WHERE Id = '{0}'", Id);
-                    context.Database.ExecuteSqlRaw(deleteCommand);
-                }
-                catch (Exception)
-                {
-                    lstObjectID.Add(Id);
-                }
+                this.Delete(entity);
+                this.Save();
             }
-            return lstObjectID;
+
         }
 
-        public void DeleteByWhereClause(string whereClause)
+        public void Update(Product item)
         {
             DBContext context = (DBContext)UnitOfWork.Context;
-            string deleteCommand = string.Format("DELETE FROM {0} WHERE {1}", "MenuNguoiDungs", whereClause);
-            context.Database.ExecuteSqlRaw(deleteCommand);
+            context.Product.Update(item);
+            context.SaveChanges();
+            
+        }
+
+
+        public void DisapprovedItem(int Id)
+        {
+            DBContext context = (DBContext)UnitOfWork.Context;
+            var item = this.GetById(Id);
+            item.ModerationStatus = ModerationStatus.Pending;
+            context.SaveChanges();
+        }
+
+        public void ApprovedItem(int Id)
+        {
+            DBContext context = (DBContext)UnitOfWork.Context;
+            var item = this.GetById(Id);
+            item.ModerationStatus = ModerationStatus.Approved;
+            context.SaveChanges();
+        }
+        public Product_Entity GetEntity(int Id)
+        {
+            var context = (DBContext)UnitOfWork.Context;
+            var query = from obj in context.Product
+                        where obj.Id == Id
+                        select new Product_Entity
+                        {
+                            Id = obj.Id,
+                            Name = obj.Name,
+                            CreatedByText = "trung",
+                            LastModifiedByText = "11/11/2000"
+                        };
+            var entity = query.FirstOrDefault();
+            if (entity == null) return new Product_Entity();
+            return entity;
         }
     }
 }

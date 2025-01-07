@@ -1,0 +1,46 @@
+﻿
+@model SIDVC.Core.Domain.Entities.Sharepoint.@Entity@
+<div class="table-responsive invoice-table custom-scrollbar" id="table">
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <td class="item">
+                    <h6 class="p-2 mb-0">Trường giá trị</h6>
+                </td>
+                <td class="Hours">
+                    <h6 class="p-2 mb-0">Nội dung</h6>
+                </td>
+
+            </tr>
+                <tr>
+                <td>
+                    <label>Title</label>
+                </td>
+                <td>
+                    <p class="itemtext">@Model.Title</p>
+                </td>
+
+            </tr>
+            @columnsTemplate@
+            <tr>
+                <td>
+                    <label>Tạo lúc</label>
+                </td>
+                <td>
+                    <p class="itemtext">@Model.Created</p>
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <label>Sửa cuối lúc</label>
+                </td>
+                <td>
+                    <p class="itemtext">@Model.LastModified</p>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+</div>
+

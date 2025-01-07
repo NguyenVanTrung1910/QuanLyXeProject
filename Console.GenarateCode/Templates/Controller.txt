@@ -1,0 +1,132 @@
+﻿using Serilog;
+using SIDVC.Application.Interfaces;
+using SIDVC.Core.Domain.Entities.Sharepoint;
+using SIDVC.Core.Domain.Querys;
+using SIDVC.Shared;
+using System;
+using System.Web.Mvc;
+
+namespace SIDVC.CMS.Controllers
+{
+    public class @Entity@Controller : BaseController
+    {
+
+        private I@EntityRaw@Service _@EntityRaw@Service;
+        public @Entity@Controller(I@EntityRaw@Service @EntityRaw@Service)
+        {
+            _@EntityRaw@Service = @EntityRaw@Service;
+        }
+        public ActionResult Index()
+        {
+            ViewBag.AppName = AppName;
+            return View();
+        }
+
+        public ActionResult Edit(int ID)
+        {
+            @EntityRaw@ itemEdit = new @EntityRaw@();
+            if (ID != 0)
+                itemEdit = _@EntityRaw@Service.GetById(ID);
+            ViewBag.AppName = AppName;
+            return View(itemEdit);
+        }
+        public ActionResult View(int ID)
+        {
+            @EntityRaw@ itemEdit = _@EntityRaw@Service.GetById(ID);
+            ViewBag.AppName = AppName;
+            return PartialView(itemEdit);
+        }
+
+        public ActionResult Update(@EntityRaw@ oItem)
+        {
+            try
+            {
+                _@EntityRaw@Service.Update(oItem);
+                return Json(CMSResponse<@EntityRaw@>.SuccessResult(null));
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Lỗi ở /@Entity@/Update", ex);
+                return Json(CMSResponse<@EntityRaw@>.ErrorResult($"Đã xảy ra lỗi khi xử lý yêu cầu của bạn\n{ex}", StatusCode.LoiMaychu), JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+        public ActionResult Approved(int ID)
+        {
+            try
+            {
+                _@EntityRaw@Service.ApprovedItem(ID);
+                return Json(CMSResponse<@EntityRaw@>.SuccessResult(null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Lỗi ở /@Entity@/Approved", ex);
+                return Json(CMSResponse<@EntityRaw@>.ErrorResult($"Đã xảy ra lỗi khi xử lý yêu cầu của bạn\n{ex}", StatusCode.LoiMaychu), JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult Disapproval(int ID)
+        {
+            try
+            {
+                _@EntityRaw@Service.DisapprovedItem(ID);
+                return Json(CMSResponse<@EntityRaw@>.SuccessResult(null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Lỗi ở /@Entity@/Disapproval", ex);
+                return Json(CMSResponse<@EntityRaw@>.ErrorResult($"Đã xảy ra lỗi khi xử lý yêu cầu của bạn\n{ex}", StatusCode.LoiMaychu), JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+        public ActionResult Delete(int ID)
+        {
+            try
+            {
+                _@EntityRaw@Service.Remove(ID);
+                return Json(CMSResponse<@EntityRaw@>.SuccessResult(null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Lỗi ở /@Entity@/Delete", ex);
+                return Json(CMSResponse<@EntityRaw@>.ErrorResult($"Đã xảy ra lỗi khi xử lý yêu cầu của bạn\n{ex}", StatusCode.LoiMaychu), JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+        public ActionResult Add(@EntityRaw@ oItem)
+        {
+            try
+            {
+                _@EntityRaw@Service.Add(oItem);
+                return Json(CMSResponse<@EntityRaw@>.SuccessResult(null));
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Lỗi ở /@Entity@/Update", ex);
+                return Json(CMSResponse<@EntityRaw@>.ErrorResult($"Đã xảy ra lỗi khi xử lý yêu cầu của bạn\n{ex}", StatusCode.LoiMaychu), JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+
+        public ActionResult GetPaged(@EntityRaw@Query c_query)
+        {
+
+            try
+            {
+                DataTableJson dataForTable = _@EntityRaw@Service.GetPaged(c_query);
+                return Json(CMSResponse<DataTableJson>.SuccessResult(dataForTable));
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Lỗi ở /@Entity@/GetPaged", ex);
+                return Json(CMSResponse<@EntityRaw@>.ErrorResult($"Đã xảy ra lỗi khi xử lý yêu cầu của bạn\n{ex}", StatusCode.LoiMaychu), JsonRequestBehavior.AllowGet);
+            }
+        }
+    }
+}

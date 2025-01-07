@@ -1,0 +1,141 @@
+﻿using SIDVC.Application.Interfaces;
+using SIDVC.Core.Domain.Entities.Sharepoint;
+using SIDVC.Core.Domain.Querys;
+using SIDVC.Core.Domain.Querys.Base;
+using SIDVC.Core.Domain.Querys.Comparisons;
+using SIDVC.Core.Domain.Querys.Query;
+using SIDVC.Core.Domain.Repositories.Sharepoint;
+using SIDVC.Shared;
+using System;
+using System.Collections.Generic;
+
+namespace SIDVC.Application.Services
+{
+    public class @EntityRaw@Service : I@EntityRaw@Service
+    {
+        private readonly IAppConfiguration _appConfig;
+        private I@EntityRaw@Repository _@EntityRaw@Repository;
+        public @EntityRaw@Service(I@EntityRaw@Repository @EntityRaw@Repository, IAppConfiguration appConfig)
+        {
+            _@EntityRaw@Repository = @EntityRaw@Repository;
+            _appConfig = appConfig;
+        }
+
+        public @EntityRaw@ GetById(int id)
+        {
+            return _@EntityRaw@Repository.GetById(id);
+        }
+
+
+        /// <summary>
+        /// Duyệt một bản ghi
+        /// </summary>
+        /// <param name="ID"></param>
+        /// 
+        public void ApprovedItem(int ID)
+        {
+            var output = _@EntityRaw@Repository.Approved(ID);
+
+            if (!string.IsNullOrEmpty(output))
+                throw new Exception($"Có lỗi lúc duyệt bản ghi {ID}. Lỗi : {output}");
+        }
+        public void DisapprovedItem(int ID)
+        {
+            var output = _@EntityRaw@Repository.Disapproval(ID);
+
+            if (!string.IsNullOrEmpty(output))
+                throw new Exception($"Có lỗi lúc hủy duyệt bản ghi {ID}. Lỗi : {output}");
+        }
+
+
+        public DataTableJson GetPaged(@EntityRaw@Query searchQuery)
+        {
+            CQuery query = new CQuery();
+            query.AddViewField("Title");
+            if (searchQuery.Keyword != null && searchQuery.Keyword.Length > 0 && searchQuery.SearchIn != null && searchQuery.SearchIn.Count > 0)
+            {
+                CQuery queryOr = CQuery.Or();
+                for (int i = 0; i < searchQuery.SearchIn.Count; i++)
+                    queryOr.Add(Comparison.Contains(searchQuery.SearchIn[i], searchQuery.Keyword));
+                query.Add(queryOr);
+            }
+            //if (searchQuery.ModerationStatus == SPModerationStatusType.Approved)
+            //    query.Add(Comparison.Eq("_ModerationStatus", DataType.ModStat, SPModerationStatusType.Approved));
+
+
+            if (searchQuery.oGridRequest != null)
+            {
+                query.Take(searchQuery.oGridRequest.pageSize).Skip(searchQuery.oGridRequest.skip);
+
+                if (!string.IsNullOrEmpty(searchQuery.FolderQuery))
+                    query.FolderQuery = searchQuery.FolderQuery;
+
+                foreach (SortQuery sort in searchQuery.oGridRequest.sort)
+                {
+                    query.AddOrderBy(sort.field, sort.dir == "desc" ? false : true);
+                }
+
+                 if (searchQuery.Paging) 
+                    query.GetAllItemsCount = true;
+            }
+
+            List<@EntityRaw@> list@Entity@ = _@EntityRaw@Repository.GetPaged(query);
+
+            DataTableJson dataTableJson = new DataTableJson(
+                list@Entity@,
+                searchQuery.draw,
+                query.TotalItemsAfterQuery,
+                list@Entity@.Count
+                );
+            dataTableJson.querytext = query.ToString();
+
+
+            return dataTableJson;
+        }
+
+        public void Add(@EntityRaw@ item)
+        {
+            if (_@EntityRaw@Repository.HasDuplicateByField("Title", item.Title))
+            {
+                throw new Exception("Tiêu đề bản ghi đã tồn tại");
+            }
+            _@EntityRaw@Repository.Add(item);
+
+        }
+
+        public int AddReturnID(@EntityRaw@ item)
+        {
+            if (_@EntityRaw@Repository.HasDuplicateByField("Title", item.Title))
+            {
+                throw new Exception("Tiêu đề bản ghi đã tồn tại");
+            }
+            return _@EntityRaw@Repository.AddReturnID(item);
+        }
+
+        public void Remove(int id)
+        {
+            @EntityRaw@ itemRemove = _@EntityRaw@Repository.GetById(id);
+            if (itemRemove == null)
+            {
+                throw new ArgumentNullException("Bản ghi không tồn tại hoặc đã có lỗi xảy ra");
+            }
+            _@EntityRaw@Repository.Delete(itemRemove.ID);
+        }
+
+        public void Update(@EntityRaw@ item)
+        {
+            @EntityRaw@ itemRemove = _@EntityRaw@Repository.GetById(item.ID);
+            if (itemRemove == null)
+            {
+                throw new ArgumentNullException("Bản ghi không tồn tại hoặc đã có lỗi xảy ra");
+            }
+
+            _@EntityRaw@Repository.Update(item);
+        }
+        
+         public void UpdateOneMoreFields(int itemID, Dictionary<string, object> _dic)
+        {
+            _@EntityRaw@Repository.UpdateOneOrMoreField(itemID, _dic);
+        }
+    }
+}

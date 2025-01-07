@@ -12,6 +12,7 @@ namespace Infrastructure.DependencyInjection
     public class DBContext : DbContext
     {
         public DbSet<Product> Product { get; set; }
+        public DbSet<User> User { get; set; }
         public DBContext() { }
 
         public DBContext(DbContextOptions<DBContext> options)

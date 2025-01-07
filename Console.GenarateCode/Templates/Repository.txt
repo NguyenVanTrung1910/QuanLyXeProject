@@ -1,0 +1,92 @@
+using Microsoft.SharePoint;
+using SIDVC.Core.Domain.Entities.Sharepoint;
+using SIDVC.Core.Domain.Querys.Query;
+using SIDVC.Core.Domain.Repositories.Sharepoint;
+using SIDVC.Infrastructure.Persistence.Sharepoint.Repositories.Core;
+using System;
+using System.Collections.Generic;
+
+namespace SIDVC.Infrastructure.Persistence.Sharepoint.Repositories
+{
+    public class @EntityRaw@Repository : I@EntityRaw@Repository
+    {
+        private string DefaultUrlList = "/sites/root/Lists/@EntityRaw@";
+        private SharepointRepository _dataAccess;
+
+
+        public @EntityRaw@Repository(string urlList = null)
+        {
+            _dataAccess = new SharepointRepository(urlList ?? DefaultUrlList);
+        }
+        public void Add(@EntityRaw@ item)
+        {
+            SPListItem spItem = _dataAccess.AddItem(item);
+            spItem.Update();
+        }
+        
+        public int AddReturnID(@EntityRaw@ item)
+        {
+            SPListItem spItem = _dataAccess.AddItem(item);
+            spItem.Update();
+            return spItem.ID;
+        }
+
+        public MenuQuanTri Get(int Id)
+        {
+            return _dataAccess.GetById<MenuQuanTri>(Id);
+        }
+
+        public string Approved(int itemId)
+        {
+            return _dataAccess.UpdateOneField(itemId, "_ModerationStatus", (int)SPModerationStatusType.Approved);
+        }
+        public string Disapproval(int itemId)
+        {
+            return _dataAccess.UpdateOneField(itemId, "_ModerationStatus", (int)SPModerationStatusType.Pending);
+        }
+        public @EntityRaw@ GetById(int itemId)
+        {
+            return _dataAccess.GetById<@EntityRaw@>(itemId);
+        }
+
+        public List<@EntityRaw@> GetPaged(CQuery query)
+        {
+            var resultQuery = _dataAccess.GetDataToObjects<@EntityRaw@>(query);
+            query.TotalItemsAfterQuery = query.QueryItemsCount;
+            return resultQuery;
+        }
+
+        public void Update(@EntityRaw@ item)
+        {
+            SPListItem itemUpdate = _dataAccess.UpdateItem(item);
+            itemUpdate.Update();
+        }
+
+        public string UpdateOneField(int ItemID, string Field, object Values, bool overwrite = true)
+        {
+            return _dataAccess.UpdateOneField(ItemID, Field, Values, overwrite);
+        }
+
+        public string UpdateOneOrMoreField(int ItemID, Dictionary<string, object> Values)
+        {
+            return _dataAccess.UpdateOneOrMoreField(ItemID, Values);
+        }
+        public void Delete(int ItemId)
+        {
+            _dataAccess.GetById(ItemId).Delete();
+        }
+        public void ChangeListsByUrl(string url)
+        {
+            _dataAccess = new SharepointRepository(string.IsNullOrEmpty(url) ? DefaultUrlList : url);
+        }
+
+        public bool HasDuplicateByField(string field, string value)
+        {
+            return _dataAccess.HasDuplicate(value, field);
+        }
+        public void UpdateSPModerationStatus(int id, SPModerationStatusType SPModeration)
+        {
+            _dataAccess.UpdateSPModerationStatus(id, SPModeration);
+        }
+    }
+}
