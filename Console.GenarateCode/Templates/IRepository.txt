@@ -1,28 +1,21 @@
-using SIDVC.Core.Domain.Entities.Sharepoint;
-using SIDVC.Core.Domain.Querys.Query;
-using System.Collections.Generic;
-using Microsoft.SharePoint;
+using Domain.Entities;
+using Domain.Models;
+using Domain.Querys;
 
-namespace SIDVC.Core.Domain.Repositories.Sharepoint
+namespace Domain.IRepositories.SqlServer
 {
 
     public interface I@EntityRaw@Repository
     {
-        void Add(@EntityRaw@ item);
-        int AddReturnID(@EntityRaw@ item);
+        int TotalRecord { get; }
+        @EntityRaw@ GetById(int id);
+        void Insert(@EntityRaw@ item);
+        void DeleteById(int id);
         void Update(@EntityRaw@ item);
-        void Delete(int itemId);
-        bool HasDuplicateByField(string field, string value);
-        void UpdateSPModerationStatus(int id, SPModerationStatusType SPModeration);
-        string Approved(int itemId);
-        string Disapproval(int itemId);
-        @EntityRaw@ GetById(int itemId);
-        List<@EntityRaw@> GetPaged(CQuery query);
-
-        void ChangeListsByUrl(string url);
-        string UpdateOneField(int ItemID, string Field, object Values, bool overwrite = true);
-        string UpdateOneOrMoreField(int ItemID, Dictionary<string, object> Values);
-
+        List<@EntityRaw@_Entity> GetPaged(@EntityRaw@Query query);
+        void DisapprovedItem(int ID);
+        void ApprovedItem(int ID);
+        @EntityRaw@_Entity GetEntity(int Id);
 
     }
 

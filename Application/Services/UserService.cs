@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Domain.Entities;
 using Domain.IRepositories.SqlServer;
 using Domain.Models;
@@ -7,40 +7,40 @@ using Domain.Querys.Base;
 
 namespace Application.Services
 {
-    public class @EntityRaw@Service : I@EntityRaw@Service
+    public class UserService : IUserService
     {
-        private I@EntityRaw@Repository _@EntityRaw@Repository;
+        private IUserRepository _UserRepository;
         private readonly ResponeActionResult _responeActionResult;
         public int TotalRecord = 0;
 
-        public @EntityRaw@Service(ResponeActionResult responeActionResult,I@EntityRaw@Repository @EntityRaw@Repository) 
+        public UserService(ResponeActionResult responeActionResult,IUserRepository UserRepository) 
         {
-            _@EntityRaw@Repository = @EntityRaw@Repository;
+            _UserRepository = UserRepository;
             _responeActionResult = responeActionResult;
         }
 
-        public @EntityRaw@ GetById(int id)
+        public User GetById(int id)
         {
-            return _@EntityRaw@Repository.GetById(id);
+            return _UserRepository.GetById(id);
         }
         public ResponeActionResult ApprovedItem(int id)
         {
-            _@EntityRaw@Repository.ApprovedItem(id);
+            _UserRepository.ApprovedItem(id);
             _responeActionResult.ex_message = "Duyệt thành công";
             return _responeActionResult;
         }
         public ResponeActionResult DisapprovedItem(int id)
         {
-            _@EntityRaw@Repository.DisapprovedItem(id);
+            _UserRepository.DisapprovedItem(id);
             _responeActionResult.ex_message = "Hủy duyệt thành công";
             return _responeActionResult;
         }
 
 
-        public ResponeActionResult GetPaged(@EntityRaw@Query searchQuery)
+        public ResponeActionResult GetPaged(UserQuery searchQuery)
         {
            
-            List<@EntityRaw@_Entity> listTaiLieuThucTap = _@EntityRaw@Repository.GetPaged(searchQuery);
+            List<User_Entity> listTaiLieuThucTap = _UserRepository.GetPaged(searchQuery);
             if (listTaiLieuThucTap == null)
             {
                 _responeActionResult.Message($"Không tìm thấy bản ghi");
@@ -48,39 +48,39 @@ namespace Application.Services
             }
             _responeActionResult.data = listTaiLieuThucTap;
             _responeActionResult.draw = searchQuery.draw;
-            _responeActionResult.recordsTotal = _@EntityRaw@Repository.TotalRecord;
-            _responeActionResult.recordsFiltered = _@EntityRaw@Repository.TotalRecord;
+            _responeActionResult.recordsTotal = _UserRepository.TotalRecord;
+            _responeActionResult.recordsFiltered = _UserRepository.TotalRecord;
             return _responeActionResult;
         }
 
-        public ResponeActionResult Insert(@EntityRaw@ item)
+        public ResponeActionResult Insert(User item)
         {
             item.FillDataForInsert(1);
-            _@EntityRaw@Repository.Insert(item);
+            _UserRepository.Insert(item);
             _responeActionResult.ex_message = "Thêm thành công";
-            _responeActionResult.data = new @EntityRaw@() { Id = item.Id };
+            _responeActionResult.data = new User() { Id = item.Id };
             return _responeActionResult;
         }
 
 
         public ResponeActionResult Delete(int id)
         {
-            _@EntityRaw@Repository.DeleteById(id);
+            _UserRepository.DeleteById(id);
             _responeActionResult.ex_message = "Xóa thành công";
             return _responeActionResult;
         }
 
-        public ResponeActionResult Update(@EntityRaw@ item)
+        public ResponeActionResult Update(User item)
         {
             item.FillDataForUpdate(1);
-            _@EntityRaw@Repository.Update(item);
+            _UserRepository.Update(item);
             _responeActionResult.ex_message = "Sửa thành công";
-            _responeActionResult.data = new @EntityRaw@() { Id = item.Id };
+            _responeActionResult.data = new User() { Id = item.Id };
             return _responeActionResult;
         }
-        public @EntityRaw@_Entity GetEntity(int Id)
+        public User_Entity GetEntity(int Id)
         {
-            return _@EntityRaw@Repository.GetEntity(Id);
+            return _UserRepository.GetEntity(Id);
         }
 
 

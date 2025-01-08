@@ -1,0 +1,223 @@
+﻿<#@ template language="C#" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text" #>
+
+<#
+
+
+
+string templateFolderPath = "D:\\tfs2023\\QuanLyCongViecPhong\\QuanLyCongViecPhong\\";
+string folderPathEntity = Path.Combine(templateFolderPath, "EF\\Entity");
+string folderPathQuery = Path.Combine(templateFolderPath, "EF\\Query");
+string folderPathRepository = Path.Combine(templateFolderPath, "EF\\Repository");
+string[] files = Directory.GetFiles(folderPathEntity);
+string namespaceModel = "GiaoViecTrongPhong.DataAccess.EF";
+string DBContextName = "DBContext";
+foreach (string filePath in files)
+{
+    string Entity = Path.GetFileNameWithoutExtension(filePath);
+    if (Entity.Contains("_Entity")) continue;
+   
+
+    string repositoryClass = Entity + "sRepository";
+    string repositoryFile1Path = Path.Combine(folderPathRepository, repositoryClass + ".cs");
+
+    string repositoryFile2Name = repositoryClass + "_Base";
+    string repositoryFile2Path = Path.Combine(folderPathRepository, repositoryFile2Name + ".cs");
+
+    if (!File.Exists(repositoryFile1Path))
+    {
+        string contentRepository1 = $@"//Đây là class tự động tạo từ file T4
+//Xóa file này đi và chạy lại file T4 để tự động sinh lại
+//Được phép bổ sung các hàm vào đây
+
+using {namespaceModel}.VM_Ultils;
+using {namespaceModel}.Entity;
+using {namespaceModel}.Query;
+namespace {namespaceModel}.Repository
+    {{
+        public partial class {repositoryClass} 
+        {{
+            
+
+            /// <summary>
+            /// Lấy ra danh sách phân trang theo điều kiên
+            /// </summary>
+            /// <param name=""SearchOption""></param>
+            /// <returns></returns>
+            public List<{Entity}_Entity> GetPaged(BaseQuery SearchOption)
+            {{
+                var context = ({DBContextName})UnitOfWork.Context;
+                var query = from obj in context.{Entity}s
+                            where (!SearchOption.isgetBylisID || SearchOption.lstIDGet.Any(id => id == obj.Id))
+                            select new {Entity}_Entity
+                            {{
+                                Id = obj.Id
+
+                            }};
+                return query.GetByGridRequest(SearchOption.oGridRequest, ref TotalRecord).ToList();
+        }}
+        public {Entity}_Entity GetEntity(int Id)
+        {{
+            var context = (DBContext)UnitOfWork.Context;
+            var query = from obj in context.{Entity}s
+                        where obj.Id == Id
+                        select new {Entity}_Entity
+                         {{
+                            Id = obj.Id,
+
+                          }};
+            return query.FirstOrDefault();
+          }}
+        }}
+    }}
+        ";
+        File.WriteAllText(repositoryFile1Path, contentRepository1);
+    }
+
+
+    string contentRepository2 = $@"//Đây là class tự động tạo từ file T4
+//Xóa file này đi và chạy lại file T4 để tự động sinh lại
+//Không được thêm hay sửa file này. Vì file sẽ ghi đè tự động gây mất dữ liệu thêm
+
+using Microsoft.EntityFrameworkCore;
+namespace {namespaceModel}.Repository
+    {{
+        public partial class {repositoryClass} : EFRepository<Entity.{Entity}>
+        {{
+                public int TotalRecord = 0;
+
+                public {Entity}sRepository(IUnitOfWork unitOfWork)
+                        {{
+                            UnitOfWork = unitOfWork;
+                        }}
+                public Entity.{Entity} GetById(int Id)
+                        {{
+                            try
+                            {{
+                                {DBContextName} context = ({DBContextName})UnitOfWork.Context;
+                                return context.{Entity}s.First(dk => dk.Id == Id);
+                            }}
+                            catch {{ return null; }}
+                        }}  
+
+                public Entity.{Entity} SaveReturnToObject(Entity.{Entity} obj)
+                        {{
+                            try
+                            {{
+                                {DBContextName} context = ({DBContextName})UnitOfWork.Context;
+                                context.{Entity}s.Add(obj);
+                                context.SaveChanges();
+                            }}
+                            catch (Exception ex)
+                            {{
+                                throw new Exception(ex.Message + ex.StackTrace + ex.Source);
+                            }}
+                            return obj;
+                        }}
+                public void BulkInsert(List<Entity.{Entity}> lstEntity, int packageSize = 1000, bool recreateContext = false)
+                {{
+                    {DBContextName} context = ({DBContextName})UnitOfWork.Context;
+                    for (int i = 0; i < lstEntity.Count; i++)
+                    {{
+                        context.{Entity}s.Add(lstEntity[i]);
+                        if (i > 0 && i % packageSize == 0)
+                        {{
+                            context.SaveChanges();
+                            if (recreateContext)
+                            {{
+                                context.Dispose();
+                                context = new {DBContextName}();
+                            }}
+                        }}
+                    }}
+                    context.SaveChanges();
+                }}
+
+                public int DeleteById(int Id)
+                {{
+                    try
+                    {{
+                        Entity.{Entity} entity = this.GetById(Id);
+                        if (entity != null)
+                            this.Delete(entity);
+                        return 1;
+                    }}
+                    catch {{ return 0; }}
+                }}
+
+                public List<string> DeleteByIds(string ItemId, string returnField = ""TEN"")
+                {{
+                    string[] arrItemID = ItemId.Split(',');
+                    List<string> lstObjectID = new List<string>();
+                    List<string> lstObjectName = new List<string>();
+                    {DBContextName} context = ({DBContextName})UnitOfWork.Context;
+
+                    foreach (string Id in arrItemID)
+                    {{
+                        try
+                        {{
+                            string deleteCommand = string.Format(""DELETE FROM {Entity} WHERE Id = '{{0}}'"", Id);
+                            context.Database.ExecuteSqlRaw(deleteCommand);
+                        }}
+                        catch (Exception)
+                        {{
+                            lstObjectID.Add(Id);
+                        }}
+                    }}
+                    return lstObjectID;
+                }}
+
+                public void DeleteByWhereClause(string whereClause)
+                {{
+                    {DBContextName} context = ({DBContextName})UnitOfWork.Context;
+                    string deleteCommand = string.Format(""DELETE FROM {{0}} WHERE {{1}}"", ""{Entity}"", whereClause);
+                    context.Database.ExecuteSqlRaw(deleteCommand);
+                }}
+
+
+
+        }}
+    }}
+        ";
+    File.WriteAllText(repositoryFile2Path, contentRepository2);
+
+    string entityFileName = Entity + "_Entity";
+    string entityFilePath = Path.Combine(folderPathEntity, entityFileName + ".cs");
+
+    if (!File.Exists(entityFilePath))
+    {
+        string content = $@"//Đây là class tự động tạo từ file T4
+//Xóa file này đi và chạy lại file T4 để tự động sinh lại
+namespace {namespaceModel}.Entity
+    {{
+        public class {entityFileName} : Entity.{Entity}
+        {{
+            //Bổ sung các prop mà không muốn xuất hiện ở DB trong đây       
+        }}
+    }}
+        ";
+        File.WriteAllText(entityFilePath, content);
+    }
+
+    //Xử lý tạo ra Query
+    string queryFileName = Entity + "Query";
+    string queryFilePath = Path.Combine(folderPathQuery, queryFileName + ".cs");
+
+    if (!File.Exists(queryFilePath))
+    {
+        string queryContent = $@"//Đây là class tự động tạo từ file T4
+//Xóa file này đi và chạy lại file T4 để tự động sinh lại
+namespace {namespaceModel}.Query
+    {{
+        public class {queryFileName} : BaseQuery
+        {{
+            //Bổ sung các thuộc tính điều kiện tìm kiếm vào đây      
+        }}
+    }}
+        ";
+        File.WriteAllText(queryFilePath, queryContent);
+    }
+
+}
+#>

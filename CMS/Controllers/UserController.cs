@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Domain.Models;
 using Domain.Querys;
 using Domain.Querys.Base;
@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CMS.Controllers
 {
-    public class @EntityRaw@Controller : BaseController
+    public class UserController : BaseController
     {
-        private readonly I@EntityRaw@Service _@EntityRaw@Service;
-        public @EntityRaw@Controller(I@EntityRaw@Service @EntityRaw@Service)
+        private readonly IUserService _UserService;
+        public UserController(IUserService UserService)
         {
-            _@EntityRaw@Service = @EntityRaw@Service;
+            _UserService = UserService;
         }
         public IActionResult Index()
         {
@@ -19,22 +19,22 @@ namespace CMS.Controllers
         }
         public IActionResult Edit(int Id)
         {
-            @EntityRaw@ itemEdit = new @EntityRaw@();
+            User itemEdit = new User();
             if (Id != 0)
-                itemEdit = _@EntityRaw@Service.GetById(Id);
+                itemEdit = _UserService.GetById(Id);
             return View(itemEdit);
         }
         public IActionResult View(int Id)
         {
-            @EntityRaw@ itemEdit = _@EntityRaw@Service.GetEntity(Id);
+            User itemEdit = _UserService.GetEntity(Id);
             return PartialView(itemEdit);
         }
 
-        public IActionResult Update(@EntityRaw@ oItem)
+        public IActionResult Update(User oItem)
         {
             try
             {
-                var responeActionResult = _@EntityRaw@Service.Update(oItem);
+                var responeActionResult = _UserService.Update(oItem);
                 return Ok(responeActionResult);
             }
             catch (Exception ex)
@@ -49,7 +49,7 @@ namespace CMS.Controllers
         {
             try
             {
-                var responeActionResult =  _@EntityRaw@Service.ApprovedItem(ID);
+                var responeActionResult =  _UserService.ApprovedItem(ID);
                 return Ok(responeActionResult);
             }
             catch (Exception ex)
@@ -63,7 +63,7 @@ namespace CMS.Controllers
         {
             try
             {
-                var responeActionResult = _@EntityRaw@Service.DisapprovedItem(ID);
+                var responeActionResult = _UserService.DisapprovedItem(ID);
                 return Ok(responeActionResult);
             }
             catch (Exception ex)
@@ -78,7 +78,7 @@ namespace CMS.Controllers
         {
             try
             {
-                var responeActionResult = _@EntityRaw@Service.Delete(Id);
+                var responeActionResult = _UserService.Delete(Id);
                 return Ok(responeActionResult);
             }
             catch (Exception ex)
@@ -89,11 +89,11 @@ namespace CMS.Controllers
 
 
         }
-        public IActionResult Insert(@EntityRaw@ oItem)
+        public IActionResult Insert(User oItem)
         {
             try
             {
-                var responeActionResult = _@EntityRaw@Service.Insert(oItem);
+                var responeActionResult = _UserService.Insert(oItem);
                 return Ok(responeActionResult);
 
             }
@@ -106,12 +106,12 @@ namespace CMS.Controllers
 
         }
 
-        public IActionResult GetPaged(@EntityRaw@Query c_query)
+        public IActionResult GetPaged(UserQuery c_query)
         {
 
             try
             {
-                var responeActionResult = _@EntityRaw@Service.GetPaged(c_query);
+                var responeActionResult = _UserService.GetPaged(c_query);
                 return Ok(responeActionResult);
             }
             catch (Exception ex)

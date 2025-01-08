@@ -1,8 +1,8 @@
-﻿@{
+@{
     ViewBag.Title = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@model Domain.Models.@Entity@
+@model Domain.Models.User
 
 
 <script>
@@ -159,7 +159,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
-            <form asp-action="@(Model.Id == 0 ? "Insert" : "Update")" asp-controller="@Entity@" method="post" class="card needs-validation">
+            <form asp-action="@(Model.Id == 0 ? "Insert" : "Update")" asp-controller="User" method="post" class="card needs-validation">
                 <div class="card-header">
                     <h4>Thông tin bản ghi</h4>
                 </div>
@@ -169,7 +169,25 @@
                         {
                             <input asp-for="Id" type="hidden" />
                         }
-                        @columnsTemplate@
+                        
+                
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Name</label>
+                            <input asp-for="Name" class="form-control " placeholder="Name" required />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                
+                
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control " placeholder="Email" required />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                
                         @* <div class="col-md-6 nc">
                             <div class="mb-3">
                                 <label asp-for="CotId" class="form-label ">Chọn cột cần lọc</label>

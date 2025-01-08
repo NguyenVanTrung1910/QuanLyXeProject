@@ -25,6 +25,7 @@ builder.Services.AddControllersWithViews()
 
 #region Đăng ký Service
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 
 

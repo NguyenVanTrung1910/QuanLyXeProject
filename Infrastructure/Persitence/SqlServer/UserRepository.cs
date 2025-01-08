@@ -11,14 +11,14 @@ using System.Data;
 
 namespace Infrastructure.Persitence.SqlServer
 {
-    public partial class @EntityRaw@Repository : I@EntityRaw@Repository
+    public partial class UserRepository : IUserRepository
     {
-        public List<@EntityRaw@_Entity> GetPaged(@EntityRaw@Query SearchOption)
+        public List<User_Entity> GetPaged(UserQuery SearchOption)
         {
             var context = (DBContext)UnitOfWork.Context;
-            var query = from obj in context.@EntityRaw@
+            var query = from obj in context.User
                         //where (!SearchOption.isgetBylisID || SearchOption.lstIDGet.Any(id => id == obj.Id))
-                        select new @EntityRaw@_Entity
+                        select new User_Entity
                         {
                             Id = obj.Id,
                             Name = obj.Name,

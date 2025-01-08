@@ -6,30 +6,30 @@ using Infrastructure.DependencyInjection;
 
 namespace Infrastructure.Persitence.SqlServer
 {
-    public partial class @EntityRaw@Repository : EFRepository<@EntityRaw@>
+    public partial class UserRepository : EFRepository<User>
     {
         public int TotalRecord { get{ return Total; } }
         public int Total = 0;
 
-        public @EntityRaw@Repository(IUnitOfWork unitOfWork)
+        public UserRepository(IUnitOfWork unitOfWork)
         {
             UnitOfWork = unitOfWork;
         }
-        public @EntityRaw@ GetById(int Id)
+        public User GetById(int Id)
         {
             try
             {
                 DBContext context = (DBContext)UnitOfWork.Context;
-                return context.@EntityRaw@.First(dk => dk.Id == Id);
+                return context.User.First(dk => dk.Id == Id);
             }
-            catch { return new @EntityRaw@(); }
+            catch { return new User(); }
         }
-        public void BulkInsert(List<@EntityRaw@> lstEntity, int packageSize = 1000, bool recreateContext = false)
+        public void BulkInsert(List<User> lstEntity, int packageSize = 1000, bool recreateContext = false)
         {
             DBContext context = (DBContext)UnitOfWork.Context;
             for (int i = 0; i < lstEntity.Count; i++)
             {
-                context.@EntityRaw@.Add(lstEntity[i]);
+                context.User.Add(lstEntity[i]);
                 if (i > 0 && i % packageSize == 0)
                 {
                     context.SaveChanges();
@@ -44,16 +44,16 @@ namespace Infrastructure.Persitence.SqlServer
         }
 
 
-        public void Insert(@EntityRaw@ item)
+        public void Insert(User item)
         {
             var context = (DBContext)UnitOfWork.Context;
-            context.@EntityRaw@.Add(item);
+            context.User.Add(item);
             context.SaveChanges();
         }
 
         public void DeleteById(int id)
         {
-            @EntityRaw@ entity = this.GetById(id);
+            User entity = this.GetById(id);
             if (entity != null)
             {
                 this.Delete(entity);
@@ -61,10 +61,10 @@ namespace Infrastructure.Persitence.SqlServer
             }
         }
 
-        public void Update(@EntityRaw@ item)
+        public void Update(User item)
         {
             DBContext context = (DBContext)UnitOfWork.Context;
-            context.@EntityRaw@.Update(item);
+            context.User.Update(item);
             context.SaveChanges();
         }
 
@@ -84,17 +84,17 @@ namespace Infrastructure.Persitence.SqlServer
             item.ModerationStatus = ModerationStatus.Approved;
             context.SaveChanges();
         }
-        public @EntityRaw@_Entity GetEntity(int Id)
+        public User_Entity GetEntity(int Id)
         {
             var context = (DBContext)UnitOfWork.Context;
-            var query = from obj in context.@EntityRaw@
+            var query = from obj in context.User
                         where obj.Id == Id
-                        select new @EntityRaw@_Entity
+                        select new User_Entity
                         {
                             Id = obj.Id
                         };
             var entity = query.FirstOrDefault();
-            if (entity == null) return new @EntityRaw@_Entity();
+            if (entity == null) return new User_Entity();
             return entity;
         }
     }

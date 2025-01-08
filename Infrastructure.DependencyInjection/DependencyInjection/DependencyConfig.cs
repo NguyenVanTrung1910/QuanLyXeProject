@@ -22,6 +22,7 @@ namespace Infrastructure.DependencyInjection
 
             // Đăng ký tất cả các dịch vụ của Infrastructure hello
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ResponeActionResult>();
             services.AddScoped<IUnitOfWork, EFUnitOfWork>();
             return services;

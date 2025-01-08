@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
@@ -43,17 +43,13 @@
         <div class="col-sm-12">
             <div class="card" id="search-zone">
                 <div class="card-header">
-                    <div class="row mb-2" id="dropdownParent">
+                    <div class="row mb-2">
 
                         <div class="col-md-3  mb-2">
                             <label class="form-label" for="validationTooltip01">Nhập từ khóa...</label>
-                            <input id="searchInputProduct" type="text" class="form-control flex-grow-1 " autocomplete="none">
+                            <input id="searchInputUser" type="text" class="form-control flex-grow-1 " autocomplete="none">
                         </div>
-                        <div class="col-md-2 mb-2">
-                            <label class="form-label">Lọc theo người chạy</label>
-                            <select id="NguoiDungId" class="form-control " placeholder="Người chạy"></select>
 
-                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12 text-center">
@@ -66,7 +62,7 @@
                 <div class="card-header py-3 card-no-border">
                     <div class="row">
                         <div class="col-md-12 text-end">
-                            <button id="addNewProduct" type="button" data-permission="">
+                            <button id="addNewUser" type="button" data-permission="">
                                 Thêm mới
                             </button>
                         </div>
@@ -75,7 +71,7 @@
                 </div>
                 <div class="card-body pt-0">
                     <div class="table-responsive custom-scrollbar">
-                        <table class="display" id="data-Product-4" style="width:100%">
+                        <table class="display" id="data-User-4" style="width:100%">
                         </table>
                     </div>
                 </div>
@@ -85,17 +81,17 @@
 
 </div>
 <script>
-    function xemProduct(Id) {
-        openModalWithApi("/Product/View/" + Id, "lg", "Xem chi tiết");
+    function xemUser(Id) {
+        openModalWithApi("/User/View/" + Id, "lg", "Xem chi tiết");
     };
-    function suaProduct(Id) {
-        ChuyenHuong("external", "/Product/Edit/" + Id);
+    function suaUser(Id) {
+        ChuyenHuong("external", "/User/Edit/" + Id);
     };
 
-    function duyetProduct(Id) {
+    function duyetUser(Id) {
         toggleButtonContainerLoading(Id);
         $.ajax({
-            url: '/Product/Approved/' + Id,
+            url: '/User/Approved/' + Id,
             method: 'GET',
             dataType: 'json',
             success: function (data) {
@@ -109,10 +105,10 @@
             }
         });
     };
-    function huyDuyetProduct(Id) {
+    function huyDuyetUser(Id) {
         toggleButtonContainerLoading(Id);
         $.ajax({
-            url: '/Product/Disapproval/' + Id,
+            url: '/User/Disapproval/' + Id,
             method: 'GET',
             dataType: 'json',
             success: function (data) {
@@ -127,14 +123,14 @@
             }
         });
     };
-    function xoaProduct(Id) {
+    function xoaUser(Id) {
 
 
         toggleButtonContainerLoading(Id);
         showNotificationWithConfirm("",
             () => {
                 $.ajax({
-                    url: '/Product/Delete/' + Id,
+                    url: '/User/Delete/' + Id,
                     method: 'GET',
                     dataType: 'json',
                     success: function (data) {
@@ -156,40 +152,49 @@
 
     };
     $(document).ready(function () {
-        var dataGridInstance = $('#data-Product-4').registerGrid({
+        var dataGridInstance = $('#data-User-4').registerGrid({
             columns: [
+                
+                
                 {
-                    "data": 'STT',
-                    "title": "STT",
-                    "render": function (data, type, row, meta) {
+                    'data': 'STT',
+                    'title': 'STT',
+                    'render': function (data, type, row, meta) {
                         return Index = meta.row + meta.settings._iDisplayStart + 1;
                     },
                     'width': "30px",
-                    "orderable": false,
-                    'visible': true
+                    'orderable': false,
+                    'visible': true,
                 },
                 {
                     'data': 'Name',
-                    'title': 'name',
-                    "render": function (data, type, row) {
-                        return `<a onclick='xemProduct(${row.Id})'>${row.Name}</a>`;
+                    'title': 'Name',
+                    'render': function (data, type, row) {
+                        return data ? data : ' ';
                     },
                     'orderable': false,
                     'visible': true
                 },
                 {
+                    'data': 'Email',
+                    'title': 'Email',
+                    'render': function (data, type, row) {
+                        return data ? data : ' ';
+                    },
+                    'orderable': false,
+                    'visible': true
+                },{
                     "data": '',
                     "title": "Chức năng",
                     "render": function (data, type, row) {
-                        console.log(row.ModerationStatus)
                         var html = `<div class='button-container-in-grid button-container-${row.Id}'>`;
-                        html += `<a href='#' title="Sửa " data-permission="" onclick='suaProduct(${row.Id})'><i class="fa fa-pencil" aria-hidden="true"></i></a>`
+                        html += `<a href='#' title="Sửa " data-permission="" onclick='suaUser(${row.Id})'><i class="fa fa-pencil" aria-hidden="true"></i></a>`
                         if (row.ModerationStatus != 0)
-                            html += `<a href='#' title="Duyệt " data-permission="" onclick='duyetProduct(${row.Id})'><i class="fa fa-check" aria-hidden="true"></i></a>`
+                            html += `<a href='#' title="Duyệt " data-permission="" onclick='duyetUser(${row.Id})'><i class="fa fa-check" aria-hidden="true"></i></a>`
                         else
-                            html += `<a href='#' title="Hủy duyệt" data-permission="" onclick='huyDuyetProduct(${row.Id})'><i class="fa fa-times" aria-hidden="true"></i></a>`
+                            html += `<a href='#' title="Hủy duyệt" data-permission="" onclick='huyDuyetUser(${row.Id})'><i class="fa fa-times" aria-hidden="true"></i></a>`
 
-                        html += ` <a href='#' title="Xóa" data-permission="" onclick='xoaProduct(${row.Id})'><i class="fa fa-trash-o" aria-hidden="true"></i></a>`;
+                        html += ` <a href='#' title="Xóa" data-permission="" onclick='xoaUser(${row.Id})'><i class="fa fa-trash-o" aria-hidden="true"></i></a>`;
                         return html
                     },
                     "orderable": false,
@@ -197,10 +202,10 @@
                 }
             ],
             length: 20,
-            endpoint: "/Product/GetPaged",
+            endpoint: "/User/GetPaged",
             prepareRequest: function (d) {
                 d.SearchIn = ["Name"];
-                d.Keyword = $('#searchInputProduct').val();
+                d.Keyword = $('#searchInputUser').val();
                 var t_gridRequest = {
                     "skip": d.start,
                     "page": (d.start / d.length) + 1,
@@ -231,45 +236,20 @@
             }
         });
 
-        $("#searchInputProduct").enterKey(function () {
+        $("#searchInputUser").enterKey(function () {
             var button = $('#search-btn');
             if (!button.hasClass("loading"))
                 $('#search-btn').click();
         });
-        $('#addNewProduct').registerButton({
+        $('#addNewUser').registerButton({
             type: 'primary',
             icon: "fa fa-plus",
             clickHandler: function () {
                 return new Promise(function (resolve) {
-                    ChuyenHuong("external", "/Product/Edit/" + 0)
+                    ChuyenHuong("external", "/User/Edit/" + 0)
                     resolve();//cờ xác định kết thúc
                 });
             }
-        });
-        var initialSelection = [];
-        $("#NguoiDungId").registerSelect({
-            url: '/User/GetPaged',
-            placeholder: "Chọn người chạy",
-            queryData: {
-            },
-            dropdownParent: "#dropdownParent",
-            initialSelection: initialSelection,
-            prepareDataRequest: function (params) {
-                return {
-                    Keyword: params.term,
-                    SearchIn: ["Name"],
-                };
-            },
-            dataProcess: function (data) {
-                const results = data.data
-                    .sort((a, b) => a.Name.localeCompare(b.Name))
-                    .map(item => ({
-                        id: item.Id,
-                        text: item.Name
-                    }));
-
-                return { results };
-            },
         });
     });
 

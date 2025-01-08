@@ -1,0 +1,584 @@
+﻿<#@ template language="C#" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ output extension=".txt" #>
+
+<#
+string Entity = "Project";
+string namespaceProject = "GiaoViecTrongPhong.DataAccess";
+string templateFolderPath = "D:\\tfs2023\\GiaoViecTrongPhong.DataAccess\\GiaoViecTrongPhong.DataAccess\\";
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------Không được tự ý sửa các phần từ bên dưới này ------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+string output = $"{DateTime.Now.ToString("MM/dd/yyyy HH:mm")}\tBắt đầu tạo code tự động";
+string folderPathEntity = Path.Combine(templateFolderPath, "EF\\Entity");
+string namespaceModel = $"{namespaceProject}.EF";
+string filePath = Path.Combine(folderPathEntity, $"{Entity}.cs");
+string pathSaveCodeGen = "";
+if (Entity.Contains("_Entity")) output += $"{Environment.NewLine}{DateTime.Now.ToString("MM/dd/yyyy HH:mm")}\tBỏ qua không xử lý {Entity}. Vi phạm nguyên tắc tạo";
+try
+{
+    if (!File.Exists(filePath)) output += $"{Environment.NewLine}{DateTime.Now.ToString("MM/dd/yyyy HH:mm")}\tKhông tìm thấy đổi tượng để tạo code";
+    using (StreamReader reader = new StreamReader(filePath))
+    {
+        Regex regex = new Regex(@"\s+(?:\[[^]]*\]\s*)*(?<type>\w+)(\?)?\s+(?<name>\w+)\s*\{[^\}]*\}");
+        Dictionary<string, string> PropAndType = new Dictionary<string, string>();
+        while (!reader.EndOfStream)
+        {
+            string line = reader.ReadLine();
+            Match match = regex.Match(line.Trim());
+            if (match.Success)
+            {
+                string attributeName = match.Groups["name"].Value;
+                string attributeType = match.Groups["type"].Value;
+                Console.WriteLine($"{attributeType} {attributeName}");
+
+
+                if (attributeType == "virtual") continue;
+                if (attributeName == "Id") continue;
+
+
+                PropAndType.Add(attributeName, attributeType);
+            }
+        }
+        if (PropAndType.Count == 0)
+        {
+            output += $"{Environment.NewLine}{DateTime.Now.ToString("MM/dd/yyyy HH:mm")}\tKhông tìm thấy thuộc tính. Kiểm tra lại file Entity";
+
+            goto thoatchuongtrinh;
+        }
+
+        //Kiểm tra và tạo thư mục lưu trữ
+        pathSaveCodeGen = Path.Combine(templateFolderPath, "GenCode\\" + Entity + "s");
+        if (!Directory.Exists(pathSaveCodeGen))
+        {
+            Directory.CreateDirectory(pathSaveCodeGen);
+        }
+
+        #region controller
+
+        string contentController = $@"
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using {namespaceModel}.Entity;
+using {namespaceModel}.Models;
+using {namespaceModel}.Query;
+using {namespaceModel}.Repository;
+
+
+namespace {namespaceProject}.Controllers
+{{
+    [Authorize]
+    public class {Entity}s : Controller
+
+    {{
+        /// <summary>
+        /// Chưa các hàm cơ bản sẽ tự động sinh ra khi gencode
+        /// 
+        /// </summary>
+        #region CURL
+        private EFUnitOfWork oEFUnitOfWork = new EFUnitOfWork();
+        /// <summary>
+        /// View này là dùng load ra danh sahscs
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {{
+            return View();
+        }}
+
+        /// <summary>
+        /// Mở view thêm mới bản ghi
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Create()
+        {{
+            return PartialView(""Edit"", new {Entity}_Entity());
+        }}
+        /// <summary>
+        /// Mở view xem chi tiết
+        /// </summary>
+        /// <param name=""ItemID""></param>
+        /// <returns></returns>
+
+        public IActionResult View(int ItemID)
+        {{
+            {Entity}sRepository o{Entity}Repository = new {Entity}sRepository(oEFUnitOfWork);
+            var o{Entity}_Entity = o{Entity}Repository.GetEntity(ItemID);
+            return PartialView(""View"", o{Entity}_Entity);
+        }}
+        /// <summary>
+        /// Get danh dữ liệu theo điều kiện đầu vào phân trang
+        /// </summary>
+        /// <param name=""dataParams""></param>
+        /// <returns></returns>
+        public IActionResult GetData({Entity}Query dataParams)
+        {{
+            {Entity}sRepository o{Entity}Repository = new {Entity}sRepository(oEFUnitOfWork);
+            List<{Entity}_Entity> lstvalues = o{Entity}Repository.GetPaged(dataParams);
+            return Json(new JsonGrid(lstvalues, o{Entity}Repository.TotalRecord));
+        }}
+
+        /// <summary>
+        /// Mở form sửa bản ghi
+        /// </summary>
+        /// <param name=""ItemID""></param>
+        /// <returns></returns>
+        public IActionResult Edit(int ItemID)
+        {{
+            {Entity}sRepository o{Entity}Repository = new {Entity}sRepository(oEFUnitOfWork);
+            var o{Entity}_Entity = o{Entity}Repository.GetEntity(ItemID);
+            return PartialView(""Edit"", o{Entity}_Entity);
+        }}
+        /// <summary>
+        /// Update bản ghi
+        /// </summary>
+        /// <param name=""o{Entity}""></param>
+        /// <returns></returns>
+        public IActionResult Update({namespaceModel}.Entity.{Entity} o{Entity})
+        {{
+            try
+            {{
+                {Entity}sRepository o{Entity}Repository = new {Entity}sRepository(oEFUnitOfWork);
+                //Lập trình logic ở đây
+            }}
+            catch (Exception ex)
+            {{
+                return BadRequest(ex);
+            }}
+            return Ok(""Thành công"");
+
+        }}
+
+        public IActionResult Delete(int ItemID)
+        {{
+            try
+            {{
+                {Entity}sRepository o{Entity}Repository = new {Entity}sRepository(oEFUnitOfWork);
+                int status = o{Entity}Repository.DeleteById(ItemID);
+                if (status == 0) return BadRequest(""Thao tác không thành công!"");
+
+            }}
+            catch (Exception ex)
+            {{
+                return BadRequest(ex);
+            }}
+            return Ok(""Thành công"");
+
+        }}
+        #endregion
+
+    }}
+}}
+
+
+";
+        File.WriteAllText(Path.Combine(pathSaveCodeGen, $"{Entity}.cs"), contentController);
+
+        #endregion
+
+
+        #region Views
+
+        string fileView = $@"
+        @model {namespaceModel}.Entity.{Entity}_Entity
+        <table class=""table"">
+        <tbody>
+        ";
+        foreach (var pair in PropAndType)
+        {
+
+            fileView += $@"
+            <tr>
+                <th scope=""row"">{pair.Key}</th>
+                <td>@Model.{pair.Key}</td>
+            </tr>
+            ";
+        }
+        fileView += @"
+         <tr>
+            <th scope=""row"">Ngày sửa cuối</th>
+            <td>@Model.LastModified</td>
+        </tr>
+        <tr>
+            <th scope=""row"">Ngày tạo</th>
+            <td>@Model.Created</td>
+        </tr>
+            </tbody>
+            </table>
+            ";
+        File.WriteAllText(Path.Combine(pathSaveCodeGen, $"View.cshtml"), fileView);
+
+
+        string fileIndex = $@"
+@{{
+    ViewData[""Title""] = ""Index"";
+    Layout = ""~/Views/Shared/_Layout_quan_tri.cshtml"";
+}}
+<style>
+
+    .italic {{
+        font-style: italic;
+        color: #000;
+    }}
+
+    #parent-grid-{Entity}s {{
+        height: 80vh;
+    }}
+
+    #zone-search-{Entity}s {{
+        max-height: 20vh;
+    }}
+
+    #grid-{Entity}s {{
+        margin: 0;
+        padding: 0;
+        border-width: 0;
+        height: 100%;
+    }}
+
+        #grid-{Entity}s .k-grid-header {{
+            border-color: #dee2e6;
+            color: #ffffff;
+            font-size: 18px;
+            background-color: #2f62f9;
+            font-weight: bold;
+        }}
+
+        #grid-{Entity}s .k-group-cell, .k-grouping-row {{
+            border-color: #dee2e6;
+            color: #212529;
+            background-color: unset;
+        }}
+
+    #search-zone-time, #keyword {{
+        max-width: 256px;
+    }}
+
+
+
+
+
+        #search-zone-time > span:nth-child(2) {{
+            display: none;
+            visibility: hidden;
+        }}
+
+    .k-calendar .k-range-mid {{
+        background-color: rgba(13, 110, 253, .25) !important;
+    }}
+
+</style>
+<script>
+    function resizeGrid() {{
+        var gridElement = $(""#grid-{Entity}s"");
+        gridElement.data(""kendoGrid"").resize();
+    }}
+    $(window).resize(function () {{
+        resizeGrid();
+    }});
+    $(document).ready(function () {{
+
+        var picker = $(""#search-zone-time"").kendoDateRangePicker({{
+            format: ""dd/MM/yyyy"",
+            messages: {{
+                ""startLabel"": ""Bắt đầu"",
+                ""endLabel"": ""Kết thúc""
+            }},
+            range: getCurrentWeekRange(),
+            labels: false,
+            weekNumber: true,
+            month: {{
+                weekNumber: `<a class=""italic"">#= data.weekNumber #</a>`
+            }},
+
+            change: function () {{
+                $(""#grid-{Entity}s"").data(""kendoGrid"").dataSource.read();
+                return;
+            }}
+        }}).data(""kendoDateRangePicker"");
+
+        $(""#grid-{Entity}s"").kendoGrid({{
+            dataSource: {{
+                type: ""json"",
+                transport: {{
+                    read: {{
+                        type: ""POST"",
+                        dataType: ""json"",
+                        url: ""/{Entity}s/GetData""
+                    }},
+                    parameterMap: function (options) {{
+                        var selectedRange = $(""#search-zone-time"").data(""kendoDateRangePicker"")
+                        var rangeSearch = selectedRange.range();
+
+                        var queryParams = {{
+                            ""t_gridRequest"": JSON.stringify(options),
+                            ""Keyword"": $(""#keyword"").val(),
+                            ""SearchIn"": [""Title""],
+                            ""page"": options.page,
+                            ""pageSize"": options.pageSize,
+                        }};
+                        if (rangeSearch && rangeSearch.start) {{
+                            queryParams[""SearchTuNgay""] = kendo.toString(rangeSearch.start, 'dd/MM/yyyy');
+                        }}
+                        if (rangeSearch && rangeSearch.end) {{
+                            queryParams[""SearchDenNgay""] = kendo.toString(rangeSearch.end, 'dd/MM/yyyy');
+                        }}
+
+                        return queryParams;
+                    }}
+                }},
+                pageSize: 20,
+                schema: {{
+                    data: function (data) {{
+                        $stt = data.Start + 1;
+                        return data.Data;
+                    }},
+                    total: function (data) {{
+                        if (data.Total == 0) {{
+                        }}
+                        return data.Total;
+                    }},
+                    page: function (data) {{
+                        return data.Request.page;
+                    }},
+                    model: {{
+                        id: ""Id"",
+                        fields: {{
+";
+
+        foreach (var pair in PropAndType)
+        {
+            if (pair.Value == "int")
+                fileIndex += $@"{pair.Key}: {{ type: ""number"" }},";
+            else if (pair.Value == "DateTime")
+                fileIndex += $@"{pair.Key}: {{ type: ""date"" }},";
+            else
+                fileIndex += $@"{pair.Key}: {{ type: ""string"" }},";
+        };
+        fileIndex = fileIndex.TrimEnd(',');
+
+        fileIndex += $@"
+                        }}
+                    }}
+                }},
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true,
+                sort: [
+                    {{ field: ""Id"", dir: ""desc"" }}
+                ],
+
+               
+            }},
+            sortable: true,
+            selectable: true,
+            height: 0,
+            maxheight: 0,
+            groupable: false,
+            pageable: {{
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            }},
+            columns: [{{
+                title: ""STT"",
+                width: ""50px"",
+                template: function (o) {{
+
+                    return '<div style=""text-align:left"">' + $stt++ + '</div>';
+                }}
+            }},";
+
+        foreach (var pair in PropAndType)
+        {
+            fileIndex += $@" {{
+                field: ""{pair.Key}"",
+                title: ""{pair.Key}"",
+                template: `#={pair.Key}#` 
+            }},
+        ";
+        }
+        fileIndex = fileIndex.Trim().TrimEnd(',');
+        fileIndex += $@" ,
+            {{
+                template: `
+<a href=""\\#"" title='Sửa' onclick=""AddFormDialog('/{Entity}s/Edit?ItemID=#=Id#', 900, 'Xem chi tiết', null)""><i class=""fa-solid fa-pen""></i></a>
+&\\#160;
+ <a href=""\\#"" title='Xóa' onclick='OpenConfirmDialogWithAction(this)' data-action-url=""/{Entity}s/Delete?ItemID=#=Id#"" data-action-title="""" data-action-content="""" data-action-data=""""><i class=""fa-solid fa-trash""></i></a>
+ &\\#160;
+`,
+                field: ""Title"",
+                title: ""Chức năng"",
+                width: 150
+
+            }},
+            ],
+            dataBound: function (data) {{
+                console.log(""dataBound"")
+            }},
+        }});
+
+        $(""#Create{Entity}"").bind(""click"", function () {{
+            AddFormDialog(""/{Entity}s/Create"", 900, ""Thêm mới"", null);
+        }});
+
+        $(""#keyword"").change(function () {{
+            $(""#grid-{Entity}s"").data(""kendoGrid"").dataSource.read();
+        }});
+
+       
+    }});
+</script>
+<h3 class=""h5 mt-3"">Danh sách {Entity}s</h3>
+<div class=""smgrid bg-body rounded shadow-sm col-md-12 "">
+    <div id=""zone-search-{Entity}s"" class=""row my-3 pt-2 pb-1 ps-1"">
+        <div class=""col-sm-6 "">
+            <button id=""Create{Entity}""type=""button"" class=""btn btn-primary""><i class=""fa-solid fa-plus""></i> Thêm mới</button>
+        </div>
+        <div class=""col-sm-6"">
+            <div class=""d-flex justify-content-end"">
+                <div id=""search-zone-time"" class=""me-2"" title=""Tìm kiếm trong khoảng thời gian""></div>
+                <input type=""text"" class=""form-control me-1"" placeholder=""Nhập từ khóa và Enter"" id=""keyword"" name=""keyword"" autocomplete=""off"">
+            </div>
+            <div class=""input-group pe-1"">
+            </div>
+        </div>
+    </div>
+    <div id=""parent-grid-{Entity}s"">
+        <div id=""grid-{Entity}s""></div>
+    </div>
+</div>
+";
+        File.WriteAllText(Path.Combine(pathSaveCodeGen, $"Index.cshtml"), fileIndex);
+        string fileEdit = $@"
+@model Cl.DataAccess.EF.Entity.{Entity}_Entity
+<script>
+    $(document).ready(function () {{
+
+        var validationSuccess = $(""#{Entity}-form-validation-success"");
+        var form = $(""#{Entity}-form"").kendoForm({{
+            formData: {{";
+
+        foreach (var pair in PropAndType)
+        {
+            if (pair.Value == "int")
+                fileEdit += $@"{pair.Key}: Html.Raw(@Model.{pair.Key}),";
+            else if (pair.Value == "DateTime")
+                fileEdit += $@"{pair.Key}: new Date(Html.Raw(@Model.{pair.Key})),";
+            else
+                fileEdit += $@"{pair.Key}: ""Html.Raw(@Model.{pair.Key})"",";
+        };
+        fileIndex = fileIndex.TrimEnd(',');
+        fileEdit += $@"      }},
+            orientation: ""vertical"",//horizontal
+            items: [
+                {{
+                    type: ""group"",
+                    items: [
+";
+
+        foreach (var pair in PropAndType)
+        {
+            fileEdit += $@"{{
+        
+                            field: ""{pair.Key}"",
+                            label: ""{pair.Key}"",
+                            validation: {{
+                                //required: {{ message: ""Vui lòng điền {pair.Key}"" }},
+                            }},
+                            //hint: ""Điền hint ở đây.""
+                        }},
+                        ";
+
+        };
+
+
+        fileEdit += $@"
+                    ]
+                }}
+            ],
+            validateField: function (e) {{
+                validationSuccess.html("""");
+            }},
+            buttonsTemplate: `<div class=""k-form-buttons"">
+                            <button class=""k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary k-form-submit"" type=""submit"">
+                                <span class=""k-button-text"">Lưu</span>
+                            </button>
+                            <button class=""k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-form-clear"">
+                                <span class=""k-button-text"">Làm mới</span>
+                            </button>
+                        </div>`,
+            submit: function (e) {{
+                e.preventDefault();
+                 e.model.id = $(""#ItemID"").val();
+                LoadingForm();
+                $.post(""/{Entity}s/Update"", e.model)
+                    .done(function (data) {{
+                        notification.success({{
+                            title: ""Thành công!"",
+                            message: ""Thao tác đã được thực hiện thành công.""
+                        }});
+                        EndLoadingForm();
+                        $(""#grid-{Entity}s"").data(""kendoGrid"").dataSource.read();
+                    }})
+                    .fail(function (jqXHR, textStatus, errorThrown) {{
+                        console.table(jqXHR);
+                        notification.error({{
+                            title: ""Có lỗi xảy ra!"",
+                            message: ""Đã xảy ra lỗi khi thực hiện thao tác.""
+                        }});
+                        EndLoadingForm();
+                    }});
+
+            }},
+            clear: function (ev) {{
+                validationSuccess.html("""");
+            }}
+        }});
+        $(""#{Entity}-form fieldset"").prepend('<input id=""ItemID"" type=""hidden"" name=""Id"" value=""@Model.Id"" />');
+        function LoadingForm() {{
+            kendo.ui.progress(form, true);
+            form.find("".k-form-buttons button"").prop('disabled', true);
+        }}
+        function EndLoadingForm() {{
+            kendo.ui.progress(form, false);
+            form.find("".k-form-buttons button"").prop('disabled', false);
+        }}
+    }});
+</script>
+<div id=""{Entity}-form-validation-success""></div>
+<form id=""{Entity}-form""></form>
+";
+        File.WriteAllText(Path.Combine(pathSaveCodeGen, $"Edit.cshtml"), fileEdit);
+        #endregion
+
+
+    }
+}
+catch (Exception ex)
+{
+    output += $"{Environment.NewLine}{DateTime.Now.ToString("MM/dd/yyyy HH:mm")}\tCó lỗi xảy ra";
+    output += $"{Environment.NewLine}{DateTime.Now.ToString("MM/dd/yyyy HH:mm")}\t{ex.Message}";
+    goto thoatchuongtrinh;
+}
+output += $"{Environment.NewLine}{DateTime.Now.ToString("MM/dd/yyyy HH:mm")}\tTạo thành công vui lòng xem kết quả tại thư mục";
+output += $"{Environment.NewLine}{DateTime.Now.ToString("MM/dd/yyyy HH:mm")}\t{pathSaveCodeGen}";
+
+thoatchuongtrinh:
+output += $"{Environment.NewLine}{DateTime.Now.ToString("MM/dd/yyyy HH:mm")}\tKết thúc quá trình";
+#>
+
+<#= output #>
