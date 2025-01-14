@@ -1,0 +1,92 @@
+@model Domain.Entities.VaiTro_Entity
+
+
+<div class="table-responsive invoice-table custom-scrollbar" id="table">
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <td class="item">
+                    <h6 class="p-2 mb-0">Trường giá trị</h6>
+                </td>
+                <td class="Hours">
+                    <h6 class="p-2 mb-0">Nội dung</h6>
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <label>Tên vai trò</label>
+                </td>
+                <td>
+                    <p class="itemtext">@Model.TenVaiTro</p>
+                </td>
+
+            </tr>
+
+            <tr>
+                <td>
+                    <label>Mô Tả</label>
+                </td>
+                <td>
+                    <p class="itemtext">@Model.MoTa</p>
+                </td>
+
+            </tr>
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td>
+                    <label>Thời gian tạo</label>
+                </td>
+                <td>
+                    <p class="itemtext">@Model.ThoiGianTao</p>
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <label>Thời gian sửa cuối</label>
+                </td>
+                <td>
+                    <p class="itemtext">@Model.ThoiGiaSuaCuoi</p>
+                </td>
+
+            </tr>
+
+            @if (!string.IsNullOrEmpty(Model.CreatedByText))
+            {
+                <tr>
+                    <td>
+                        <label>Người tạo</label>
+                    </td>
+                    <td>
+                        <p class="itemtext">@Model.CreatedByText</p>
+                    </td>
+
+                </tr>
+            }
+            @if (!string.IsNullOrEmpty(Model.LastModifiedByText))
+            {
+                <tr>
+                    <td>
+                        <label>Người sửa cuối</label>
+                    </td>
+                    <td>
+                        <p class="itemtext">@Model.LastModifiedByText</p>
+                    </td>
+
+                </tr>
+            }
+
+
+
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,182 @@
+﻿@model Domain.Entities.NguoiDung_Entity
+
+<div class="container-fluid d-flex row">
+    <input asp-for="Id" type="hidden" />
+    <div class="card-body col-4">
+        <h1>Vai Trò</h1>
+
+        <div id="container-vaitro" class="tree-container">
+        </div>
+    </div>
+    <div class="card-body col-4 mb-2">
+        <h1>
+            Menu 
+
+                <a href="#" class="me-1 mt-1 " id="selectAllMenu" title="Tích tất cả"><i class="fa fa-check" aria-hidden="true"></i></a><span class="fw-normal">|</span>
+                <a href="#" class="me-1 mt-1" id="deselectAllMenu" title="Bỏ tích tất cả"><i class="fa fa-circle-thin" aria-hidden="true"></i></a><span class="fw-normal">|</span>
+                <a href="#" class="me-1 mt-1" id="closeAllMenu" title="Đóng tất cả"><i class="fa fa-times" aria-hidden="true"></i></a>
+        </h1>
+        
+        <div id="container-menu" class="tree-container">
+        </div>
+    </div>
+    <div class="card-body col-4 ">
+        <h1 class="mb-2">Quyền
+            <a href="#" class="me-1" id="selectAllQuyen"><i class="fa fa-check" aria-hidden="true"></i></a><span class="fw-normal">|</span>
+
+            <a href="#" class="me-1" id="deselectAllQuyen"><i class="fa fa-circle-thin" aria-hidden="true"></i></a><span class="fw-normal">|</span>
+
+        </h1>
+        
+        <div id="container-quyen" class="tree-container">
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $('.modal-footer').html('<button type="button" id="saveButton" class="btn btn-secondary" data-bs-dismiss="modal">Lưu</button>');
+        var listIdVaiTro = [];
+        var listIdMenu = [];
+        var listIdQuyen = [];
+        var checkMenu = 0;
+        var checkQuyen = 0;
+        var treeMenu, treeQuyen, treeVaiTro;
+        function getTreeMenu(listIdVaiTro) {
+            $.ajax({
+                url: '/MenuQuanTri/GetMenuIdByVaiTroIdAndNguoiDungId',
+                type: 'GET',
+                contentType: 'application/json',
+                data: { idNguoiDung: $("#Id").val(), IdVaiTroString: checkMenu != 0 ? listIdVaiTro.join(",") : null },
+                success: function (data) {
+                    checkMenu = 1;
+                    var list = data.map(item => item.toString());
+                    treeMenu = $("#container-menu").registerTreeView({
+                        selectMode: 'checkbox',
+                        values: list,
+                        disables: [],
+                        beforeLoad: null,
+                        loaded: null,
+                        url: "/MenuQuanTri/GetMenuItems",
+                        onChange: function () {
+                            listIdMenu = this.selectedNodes.map(item => parseInt(item.id));
+                            // console.log(this.selectedNodes);
+                            // console.log(this.CurrentSelected);
+                        },
+                        method: 'GET',
+                        closeDepth: 3
+                    });
+                }
+            });
+        }
+        function getTreeQuyen(listIdVaiTro) {
+            $.ajax({
+                url: '/QuyenSuDung/GetQuyenIdByVaiTroIdAndNguoiDungId',
+                type: 'GET',
+                contentType: 'application/json',
+                data: { idNguoiDung: $("#Id").val(), IdVaiTroString: checkQuyen != 0 ? listIdVaiTro.join(",") : null },
+                success: function (data) {
+                    checkQuyen = 1;
+                    var list = data.map(item => item.toString());
+                    treeQuyen = $("#container-quyen").registerTreeView({
+                        selectMode: 'checkbox',
+                        values: list,
+                        disables: [],
+                        beforeLoad: null,
+                        loaded: null,
+                        url: "/QuyenSuDung/GetQuyenItems",
+                        onChange: function () {
+                            console.log(this.values);
+                            listIdQuyen = this.selectedNodes.map(item => parseInt(item.id));
+                        },
+                        method: 'GET',
+                        closeDepth: 1
+                    });
+                }
+            });
+        }
+        $.ajax({
+            url: '/NguoiDung/GetVaiTroNguoiDungByNguoiDungId/' + $('#Id').val(),
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                console.log(data.data.map(item => item.VaiTroId.toString()))
+                var list = data.data.map(item => item.VaiTroId.toString());
+                treeVaiTro = $("#container-vaitro").registerTreeView({
+                    selectMode: 'checkbox',
+                    values: list,
+                    disables: [],
+                    beforeLoad: null,
+                    loaded: null,
+                    url: "/VaiTro/GetVaiTroItems",
+                    onChange: function () {
+                        listIdVaiTro = this.selectedNodes.map(item => parseInt(item.id));
+                        getTreeMenu(listIdVaiTro)
+                        getTreeQuyen(listIdVaiTro)
+                        // console.log(this.selectedNodes);
+                        // console.log(this.CurrentSelected);
+                    },
+                    method: 'GET',
+                    closeDepth: 3
+                });
+                getTreeMenu(listIdVaiTro)
+                getTreeQuyen(listIdVaiTro)
+            }
+        });
+
+
+        $("#closeAllMenu").bind("click", function () {
+            treeMenu.collapseAll();
+        })
+
+        $("#deselectAllMenu").bind("click", function () {
+            treeMenu.setValues([]);
+        })
+
+        $("#selectAllMenu").bind("click", function () {
+            console.log(@Html.Raw(Json.Serialize(ViewBag.AllMenuIds)));
+            treeMenu.setValues(@Html.Raw(Json.Serialize(ViewBag.AllMenuIds)))
+        })
+        $("#closeAllQuyen").bind("click", function () {
+            treeQuyen.collapseAll();
+        })
+
+        $("#deselectAllQuyen").bind("click", function () {
+            treeQuyen.setValues([]);
+        })
+
+        $("#selectAllQuyen").bind("click", function () {
+            treeQuyen.setValues(@Html.Raw(Json.Serialize(ViewBag.AllQuyenCha)))
+        })
+
+
+
+        $('#saveButton').registerButton({
+            type: 'primary',
+            icon: "fa fa-save",
+            clickHandler: function () {
+                return new Promise(function (resolve) {
+                    $.ajax({
+                        url: '/NguoiDung/SavePhanVaiTro',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ IdNguoiDung: parseInt($('#Id').val()), ListIdVaiTro: listIdVaiTro, ListIdMenu: listIdMenu, ListIdQuyen: listIdQuyen }),
+                        success: function (data) {
+                            console.log(data)
+                            showNotification("success", data.ex_message)
+                        },
+                        error: function (xhr, status, error) {
+                            showNotification("danger", 'Đã có lỗi xảy ra:', error);
+                        }
+                    });
+                    resolve();//cờ xác định kết thúc
+                });
+            }
+        });
+
+
+
+    })
+</script>

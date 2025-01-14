@@ -1,0 +1,134 @@
+﻿@{
+    Layout = "";
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="CoongVM-SIMAX">
+    <link rel="apple-touch-icon" sizes="180x180" href="~/202404/images/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/202404/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/202404/images/favicons/favicon-16x16.png">
+    <link rel="manifest" href="~/202404/images/favicons/site.webmanifest">
+
+
+
+    <title>Phần mềm quản lý công việc phòng sharepoint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&amp;display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
+          integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Plugins css start-->
+    <link type="text/css" href="~/202404/css/vendors/date-picker.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="/202404/css/vendors/scrollbar.css">
+    <link rel="stylesheet" type="text/css" href="/202404/css/vendors/datatables.css">
+    <link rel="stylesheet" type="text/css" href="/202404/css/vendors/flatpickr.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel=" stylesheet" type="text/css" href="/202404/css/vendors/bootstrap.css">
+    <link href="~/202404/css/vendors/tree.css" rel="stylesheet" />
+    <link href="~/202404/js/flat-pickr/css/flatpickr.min.css" rel="stylesheet" />
+    <link href="~/202404/css/vendors/calendar.css" rel="stylesheet" />
+    <link href="~/202404/js/sieditor/core.css" rel="stylesheet" />
+    <!-- App css-->
+    <link rel="stylesheet" type="text/css" href="/202404/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/202404/css/responsive.css">
+    <link rel="stylesheet" type="text/css" href="~/202404/css/customForMySites.css">
+
+
+    <script src="~/202404/js/jquery.min.js"></script>
+    <script src="/permissions.js"></script>
+
+</head>
+
+
+
+
+
+
+<body>
+    <div class="container-fluid p-0">
+        <div class="row m-0">
+            <div class="col-12 p-0">
+                <div class="login-card login-dark">
+                    <div>
+                        <div><a class="logo" href="/chuyen/index"><img class="img-fluid for-dark" src="~/202404/images/logo.png" alt="looginpage"><img class="img-fluid for-light" src="~/202404/images/logo_dark.png" alt="looginpage"></a></div>
+                        <div class="login-main">
+                            <form class="theme-form" action="/Account/login" method="post">
+                                <h4>Đăng nhập tài khoản </h4>
+                                <p>Đăng nhập để có thể vào trang chủ</p>
+                                <div class="form-group">
+                                    <label class="col-form-label">Tên đăng nhập</label>
+                                    <input class="form-control" type="text" required="" placeholder="" name="username">
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-form-label">Password </label>
+                                    <div class="form-input position-relative">
+                                        <input class="form-control" type="password" name="password" required="" placeholder="*********">
+                                        <div class="show-hide"> <span class="show"></span></div>
+                                    </div>
+                                </div>
+                                <div class="text-danger">
+                                    @ViewBag.Error
+                                </div>
+                                <div class="form-group mb-0">
+                                    <div class="checkbox p-0">
+                                        @* <input id="checkbox1" type="checkbox"> *@
+                                        <input class="form-check-input" type="checkbox" id="customCheck1">
+                                    </div><a class="link" href="forget-password.html">Quên mật khẩu?</a>
+                                    <div class="text-end mt-3">
+                                        <button class="btn btn-primary btn-block w-100" type="submit">Đăng nhập</button>
+                                    </div>
+                                </div>
+                                <h6 class="text-muted mt-4 or">Đăng nhập với</h6>
+                                <div class="social mt-4">
+                                    <div class="btn-showcase"><a class="btn btn-light" href="https://www.facebook.com/" target="_blank"><i class="txt-fb" data-feather="facebook"></i>facebook</a><a class="btn btn-light" href="https://twitter.com/login?lang=en" target="_blank"><i class="txt-twitter" data-feather="twitter"></i>google</a><a class="btn btn-light" href="https://www.facebook.com/" target="_blank"><i class="txt-fb" data-feather="facebook"></i>tài khoản   </a></div>
+                                    </div>
+                                <p class="mt-4 mb-0 text-center">Bạn không có tài khoản?<a class="ms-2" href="sign-up.html">Tạo tài khoản</a></p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/202404/js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="~/202404/js/vendor/feather.min.js"></script>
+    <script src="~/202404/js/vendor/feather-icon.js"></script>
+    <script src="~/202404/js/vendor/simplebar.js"></script>
+    <script src="~/202404/js/scrollbar/custom.js"></script>
+    <script src="/202404/js/config.js"></script>
+    <!-- Plugins JS start-->
+    <script src="/202404/js/sidebar-menu.js"></script>
+    <script src="~/202404/js/sidebar-pin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="~/202404/js/vendor/datepicker.js"></script>
+    <script src="~/202404/js/vendor/datepicker.en.js"></script>
+
+    <script src="~/202404/js/flat-pickr/js/flatpickr.js"></script>
+    <script src="~/202404/js/flat-pickr/js/vn.js"></script>
+
+    <script src="~/202404/js/si-utils.js"></script>
+    <script src="~/202404/js/vendor/jquery.dataTables.min.js"></script>
+    <script src="~/202404/js/vendor/tree.js"></script>
+    <script src="~/202404/js/vendor/notify.js"></script>
+    <script src="~/202404/js/calendar/fullcalendar.min.js"></script>
+
+
+    <!-- Plugins JS Ends-->
+    <!-- Theme js-->
+    <script src="/202404/js/script.js"></script>
+    <script src="/202404/js/theme-customizer/customizer.js"></script>
+
+    <script src="~/202404/js/sieditor/sieditor.js"></script>
+    <script type="text/javascript" src="~/202404/js/vm_ultils.js"></script>
+    <script type="text/javascript" src="~/notifications/notification-ultils.js"></script>
+</body>
+</html>
+

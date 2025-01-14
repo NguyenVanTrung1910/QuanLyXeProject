@@ -16,12 +16,11 @@ namespace Infrastructure.Persitence.SqlServer
         public List<@EntityRaw@_Entity> GetPaged(@EntityRaw@Query SearchOption)
         {
             var context = (DBContext)UnitOfWork.Context;
-            var query = from obj in context.@EntityRaw@
+            var query = from obj in context.@EntityRaw@s
                         //where (!SearchOption.isgetBylisID || SearchOption.lstIDGet.Any(id => id == obj.Id))
                         select new @EntityRaw@_Entity
                         {
                             Id = obj.Id,
-                            Name = obj.Name,
                             ModerationStatus = obj.ModerationStatus,
                         };
             return  query.GetByGridRequest(SearchOption.oGridRequest, ref Total).ToList();

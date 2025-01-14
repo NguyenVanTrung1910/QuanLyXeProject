@@ -1,0 +1,10 @@
+
+using Domain.Models;
+
+namespace Domain.Entities
+{
+    public  class @EntityRaw@_Entity : @EntityRaw@
+    {
+
+    }
+}

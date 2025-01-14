@@ -375,7 +375,7 @@ function toggleButtonContainerLoading(Id) {
 
         table.on('draw.dt', options.dataBound ? options.dataBound : null);
         table.on('draw.dt', function () {
-
+            checkPermissions();
             //kiểm tra xem có phải vừa có 1 thao tác back về grid không
             var ssName = 'backWithReloadGrid' + id;
             var backCallback = sessionStorage.getItem(ssName);

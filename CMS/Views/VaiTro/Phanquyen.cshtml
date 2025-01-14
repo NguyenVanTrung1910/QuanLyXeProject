@@ -1,0 +1,155 @@
+﻿@model Domain.Entities.VaiTro_Entity
+
+<div class="container-fluid d-flex row">
+    <input asp-for="Id" type="hidden" />
+    <div class="card-body col-6">
+        <h1>
+            Chức năng
+
+            <a href="#" class="me-1 mt-1 " id="selectAllMenu" title="Tích tất cả"><i class="fa fa-check" aria-hidden="true"></i></a><span class="fw-normal">|</span>
+            <a href="#" class="me-1 mt-1" id="deselectAllMenu" title="Bỏ tích tất cả"><i class="fa fa-circle-thin" aria-hidden="true"></i></a><span class="fw-normal">|</span>
+            <a href="#" class="me-1 mt-1" id="closeAllMenu" title="Đóng tất cả"><i class="fa fa-times" aria-hidden="true"></i></a>
+
+
+        </h1>
+        <div id="containerMenu" class="tree-container"></div>
+        
+    </div>
+    <div class="card-body col-6">
+        <h1 class="mb-2">
+            Quyền
+            <a href="#" class="me-1" id="selectAllQuyen"><i class="fa fa-check" aria-hidden="true"></i></a><span class="fw-normal">|</span>
+            <a href="#" class="me-1" id="deselectAllQuyen"><i class="fa fa-circle-thin" aria-hidden="true"></i></a><span class="fw-normal">|</span>
+
+        </h1>
+        <div id="containerQuyen" class="tree-container"></div>
+    </div>
+@*     <div class="card-body d-flex justify-content-end">
+        <button id="saveButton">Lưu</button>
+    </div> *@
+    
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $('.modal-footer').html('<button type="button" id="saveButton" class="btn btn-secondary" data-bs-dismiss="modal">Lưu</button>');
+        var listIdMenu = [];
+        var listIdQuyen = [];
+        
+        
+        
+        var treeMenu,treeQuyen;
+
+        
+            $.ajax({
+                url: '/VaiTro/GetVaiTroMenuByVaiTroId/' + $('#Id').val(),
+                method: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    
+                    // console.log(data.data.map(item => item.MenuQuanTriId.toString()))
+                    var list = data.data.map(item => item.MenuQuanTriId.toString());
+                     treeMenu = $("#containerMenu").registerTreeView({
+                        selectMode: 'checkbox',
+                        values: list,
+                        disables: [],
+                        beforeLoad: null,
+                        loaded: null,
+                        url: "/MenuQuanTri/GetMenuItems",
+                        onChange: function () {
+                            listIdMenu = this.selectedNodes.map(item => parseInt(item.id));
+                            
+                            // console.log(this.values);
+                            // // console.log(this.selectedNodes);
+                            // // console.log(this.CurrentSelected);
+                        },
+                        method: 'GET',
+                        closeDepth: 3
+                    });
+                }
+            });
+
+        
+        
+            $.ajax({
+                url: '/VaiTro/GetVaiTroQuyenByVaiTroId/' + $('#Id').val(),
+                method: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    // console.log(data.data.map(item => item.QuyenSuDungId.toString()))
+                        treeQuyen = $("#containerQuyen").registerTreeView({
+                        selectMode: 'checkbox',
+                        values: data.data.map(item => item.QuyenSuDungId.toString()),
+                        disables: [],
+                        beforeLoad: null,
+                        loaded: null,
+                        url: "/QuyenSuDung/GetQuyenItems",
+                        onChange: function () {
+                            listIdQuyen = this.selectedNodes.map(item => parseInt(item.id));
+                            
+                            // console.log(listIdQuyen);
+                            // // console.log(this.values);
+                            // console.log(this.selectedNodes);
+                            // // console.log(this.CurrentSelected);
+                        },
+                        method: 'GET',
+                        closeDepth: 1
+                    });
+                }
+            });
+        
+        $("#closeAllQuyen").bind("click", function () {
+            treeQuyen.collapseAll();
+        })
+
+        $("#deselectAllQuyen").bind("click", function () {
+            treeQuyen.setValues([]);
+        })
+
+        $("#selectAllQuyen").bind("click", function () {
+            console.log(@Html.Raw(Json.Serialize(ViewBag.AllMenuIds)));
+            treeQuyen.setValues(@Html.Raw(Json.Serialize(ViewBag.AllQuyenCha)))
+        })
+
+        $("#closeAllMenu").bind("click", function () {
+            treeMenu.collapseAll();
+        })
+
+        $("#deselectAllMenu").bind("click", function () {
+            treeMenu.setValues([]);
+        })
+        
+        $("#selectAllMenu").bind("click", function () {
+            console.log(@Html.Raw(Json.Serialize(ViewBag.AllMenuIds)));
+            treeMenu.setValues(@Html.Raw(Json.Serialize(ViewBag.AllMenuIds)))
+        })
+
+
+        $('#saveButton').registerButton({
+            type: 'primary',
+            icon: "fa fa-save",
+            clickHandler: function () {
+                return new Promise(function (resolve) {
+                    $.ajax({
+                        url: '/VaiTro/SavePhanQuyen',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ IdVaiTro: parseInt($('#Id').val()), ListIdMenu: listIdMenu, ListIdQuyen: listIdQuyen }),
+                        success: function (data) {
+                            // console.log(data)
+                            showNotification("success", data.ex_message)
+                        },
+                        error: function (xhr, status, error) {
+                            showNotification("danger", 'Đã có lỗi xảy ra:', error);
+                        }
+                    });
+                    resolve();//cờ xác định kết thúc
+                });
+            }
+        });
+
+
+
+    })
+</script>

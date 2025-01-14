@@ -15,7 +15,7 @@ public class Program
     static void Main(string[] args)
     {
         
-        Type entityType = typeof(User);
+        Type entityType = typeof(QuyenSuDung);
 
 
         if (entityType != null)
@@ -53,6 +53,8 @@ public class Program
             GenarateTemplateIRepository(entityName, listItemType);
             GenarateTemplateRepository(entityName, listItemType);
             GenarateTemplateRepository_Base(entityName, listItemType);
+            GenarateTemplateEntity(entityName, listItemType);
+            GenarateTemplateQuery(entityName, listItemType);
 
 
         Process.Start(new ProcessStartInfo
@@ -60,27 +62,64 @@ public class Program
                 FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, outputDirectoryPath),
                 UseShellExecute = true
             });
-        }
+    }
+    private static void GenarateTemplateEntity(string entityName, Type listItemType)
+    {
+        var listPropertyInfo = listItemType.GetProperties();
+        string outputDirectoryPath = $"Output/{entityName}";
 
-        private static void GenarateTemplateController(string entityName, Type listItemType)
-        {
-            var listPropertyInfo = listItemType.GetProperties();
-            string outputDirectoryPath = $"Output/{entityName}";
-
-            var entityNameRaw = entityName;
-
-            string outputFilePath = Path.Combine(outputDirectoryPath, $"{entityName}Controller.cs");
+        var entityNameRaw = entityName;
 
 
-            string projectRoot = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
-            string templatesFolder = Path.Combine(projectRoot, "Templates");
-            string inputFilePath = Path.Combine(templatesFolder, "Controller.txt");
-            string fileContent = File.ReadAllText(inputFilePath);
+        string projectRoot = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
+        string templatesFolder = Path.Combine(projectRoot, "Templates");
+        string inputFilePath = Path.Combine(templatesFolder, "Entity.txt");
+        string outputFilePath = Path.Combine(outputDirectoryPath, $"{entityName}_Entity.cs");
 
-            fileContent = fileContent.Replace("@EntityRaw@", entityNameRaw);
 
-            File.WriteAllText(outputFilePath, fileContent);
-        }
+        string fileContent = File.ReadAllText(inputFilePath);
+        fileContent = fileContent.Replace("@EntityRaw@", entityNameRaw);
+
+        File.WriteAllText(outputFilePath, fileContent);
+    }
+    private static void GenarateTemplateQuery(string entityName, Type listItemType)
+    {
+        var listPropertyInfo = listItemType.GetProperties();
+        string outputDirectoryPath = $"Output/{entityName}";
+
+        var entityNameRaw = entityName;
+
+
+        string projectRoot = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
+        string templatesFolder = Path.Combine(projectRoot, "Templates");
+        string inputFilePath = Path.Combine(templatesFolder, "Query.txt");
+        string outputFilePath = Path.Combine(outputDirectoryPath, $"{entityName}Query.cs");
+
+
+        string fileContent = File.ReadAllText(inputFilePath);
+        fileContent = fileContent.Replace("@EntityRaw@", entityNameRaw);
+
+        File.WriteAllText(outputFilePath, fileContent);
+    }
+    private static void GenarateTemplateController(string entityName, Type listItemType)
+    {
+        var listPropertyInfo = listItemType.GetProperties();
+        string outputDirectoryPath = $"Output/{entityName}";
+
+        var entityNameRaw = entityName;
+
+        string outputFilePath = Path.Combine(outputDirectoryPath, $"{entityName}Controller.cs");
+
+
+        string projectRoot = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
+        string templatesFolder = Path.Combine(projectRoot, "Templates");
+        string inputFilePath = Path.Combine(templatesFolder, "Controller.txt");
+        string fileContent = File.ReadAllText(inputFilePath);
+
+        fileContent = fileContent.Replace("@EntityRaw@", entityNameRaw);
+
+        File.WriteAllText(outputFilePath, fileContent);
+    }
     private static void GenarateTemplateIService(string entityName, Type listItemType)
     {
         var listPropertyInfo = listItemType.GetProperties();
@@ -161,8 +200,6 @@ public class Program
 
         var entityNameRaw = entityName;
 
-        if (entityName.StartsWith("L"))
-            entityName = entityName.Substring(1);
 
         string projectRoot = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
         string templatesFolder = Path.Combine(projectRoot, "Templates");
@@ -262,7 +299,7 @@ public class Program
                             html += `<a href='#' title=""Hủy duyệt"" data-permission="""" onclick='huyDuyet{entityName}(${{row.Id}})'><i class=""fa fa-times"" aria-hidden=""true""></i></a>`
 
                         html += ` <a href='#' title=""Xóa"" data-permission="""" onclick='xoa{entityName}(${{row.Id}})'><i class=""fa fa-trash-o"" aria-hidden=""true""></i></a>`;
-                        return html
+                        return html;
                     }},
                     ""orderable"": false,
                     ""width"": ""83px""

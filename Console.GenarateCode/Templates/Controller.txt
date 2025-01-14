@@ -3,13 +3,14 @@ using Domain.Models;
 using Domain.Querys;
 using Domain.Querys.Base;
 using Microsoft.AspNetCore.Mvc;
+using Domain.Entities;
 
 namespace CMS.Controllers
 {
     public class @EntityRaw@Controller : BaseController
     {
         private readonly I@EntityRaw@Service _@EntityRaw@Service;
-        public @EntityRaw@Controller(I@EntityRaw@Service @EntityRaw@Service)
+        public @EntityRaw@Controller(INguoiDungService nguoiDungService,I@EntityRaw@Service @EntityRaw@Service) : base(nguoiDungService)
         {
             _@EntityRaw@Service = @EntityRaw@Service;
         }
@@ -19,14 +20,14 @@ namespace CMS.Controllers
         }
         public IActionResult Edit(int Id)
         {
-            @EntityRaw@ itemEdit = new @EntityRaw@();
+            @EntityRaw@_Entity itemEdit = new @EntityRaw@_Entity();
             if (Id != 0)
-                itemEdit = _@EntityRaw@Service.GetById(Id);
+                itemEdit = _@EntityRaw@Service.GetEntity(Id);
             return View(itemEdit);
         }
         public IActionResult View(int Id)
         {
-            @EntityRaw@ itemEdit = _@EntityRaw@Service.GetEntity(Id);
+            @EntityRaw@_Entity itemEdit = _@EntityRaw@Service.GetEntity(Id);
             return PartialView(itemEdit);
         }
 
@@ -34,6 +35,7 @@ namespace CMS.Controllers
         {
             try
             {
+                oItem.CurrentUserId = GetCurrentUser().Id;
                 var responeActionResult = _@EntityRaw@Service.Update(oItem);
                 return Ok(responeActionResult);
             }
@@ -93,6 +95,7 @@ namespace CMS.Controllers
         {
             try
             {
+                oItem.CurrentUserId = GetCurrentUser().Id;
                 var responeActionResult = _@EntityRaw@Service.Insert(oItem);
                 return Ok(responeActionResult);
 

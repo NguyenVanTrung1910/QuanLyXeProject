@@ -20,7 +20,7 @@ namespace Infrastructure.Persitence.SqlServer
             try
             {
                 DBContext context = (DBContext)UnitOfWork.Context;
-                return context.@EntityRaw@.First(dk => dk.Id == Id);
+                return context.@EntityRaw@s.First(dk => dk.Id == Id);
             }
             catch { return new @EntityRaw@(); }
         }
@@ -29,7 +29,7 @@ namespace Infrastructure.Persitence.SqlServer
             DBContext context = (DBContext)UnitOfWork.Context;
             for (int i = 0; i < lstEntity.Count; i++)
             {
-                context.@EntityRaw@.Add(lstEntity[i]);
+                context.@EntityRaw@s.Add(lstEntity[i]);
                 if (i > 0 && i % packageSize == 0)
                 {
                     context.SaveChanges();
@@ -47,7 +47,7 @@ namespace Infrastructure.Persitence.SqlServer
         public void Insert(@EntityRaw@ item)
         {
             var context = (DBContext)UnitOfWork.Context;
-            context.@EntityRaw@.Add(item);
+            context.@EntityRaw@s.Add(item);
             context.SaveChanges();
         }
 
@@ -64,7 +64,7 @@ namespace Infrastructure.Persitence.SqlServer
         public void Update(@EntityRaw@ item)
         {
             DBContext context = (DBContext)UnitOfWork.Context;
-            context.@EntityRaw@.Update(item);
+            context.@EntityRaw@s.Update(item);
             context.SaveChanges();
         }
 
@@ -87,7 +87,7 @@ namespace Infrastructure.Persitence.SqlServer
         public @EntityRaw@_Entity GetEntity(int Id)
         {
             var context = (DBContext)UnitOfWork.Context;
-            var query = from obj in context.@EntityRaw@
+            var query = from obj in context.@EntityRaw@s
                         where obj.Id == Id
                         select new @EntityRaw@_Entity
                         {

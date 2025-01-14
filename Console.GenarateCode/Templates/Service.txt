@@ -55,7 +55,7 @@ namespace Application.Services
 
         public ResponeActionResult Insert(@EntityRaw@ item)
         {
-            item.FillDataForInsert(1);
+            item.FillDataForInsert(item.CurrentUserId);
             _@EntityRaw@Repository.Insert(item);
             _responeActionResult.ex_message = "Thêm thành công";
             _responeActionResult.data = new @EntityRaw@() { Id = item.Id };
@@ -72,7 +72,7 @@ namespace Application.Services
 
         public ResponeActionResult Update(@EntityRaw@ item)
         {
-            item.FillDataForUpdate(1);
+            item.FillDataForUpdate(item.CurrentUserId);
             _@EntityRaw@Repository.Update(item);
             _responeActionResult.ex_message = "Sửa thành công";
             _responeActionResult.data = new @EntityRaw@() { Id = item.Id };

@@ -20,9 +20,12 @@ namespace Infrastructure.DependencyInjection
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
 
-            // Đăng ký tất cả các dịch vụ của Infrastructure hello
-            services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
+            // Đăng ký tất cả các dịch vụ của repo
+            services.AddScoped<INguoiDungRepository, NguoiDungRepository>();
+            services.AddScoped<IVaiTroRepository, VaiTroRepository>();
+            services.AddScoped<IMenuQuanTriRepository, MenuQuanTriRepository>();
+            services.AddScoped<IMenuNguoiDungRepository, MenuNguoiDungRepository>();
+            services.AddScoped<IQuyenSuDungRepository, QuyenSuDungRepository>();
             services.AddScoped<ResponeActionResult>();
             services.AddScoped<IUnitOfWork, EFUnitOfWork>();
             return services;

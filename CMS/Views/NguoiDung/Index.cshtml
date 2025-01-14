@@ -1,0 +1,314 @@
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h4>Danh sách người dùng</h4>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="index.html">
+                            <svg class="stroke-icon">
+                                <use href="/svg/icon-sprite.svg#stroke-home"></use>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">Chức năng hệ thống</li>
+                    <li class="breadcrumb-item active">Người dùng</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- Server-side processing Starts-->
+        <div class="col-sm-12">
+
+            <div class="card">
+                <div class="card-header pb-0 card-no-border">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6 d-flex" data-permission="000001006">
+                                    <input type="text" class="form-control flex-grow-1 me-2" id="search-input" placeholder="Nhập vào từ khóa ..." autocomplete="none">
+                                    <button class="btn btn-primary" id="search-btn">Tìm kiếm</button>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button id="exportExcel" type="button" data-permission="000001005">Xuất excel</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive custom-scrollbar">
+                        <table class="display" id="data-source-4" style="width:100%">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var isQuanTriHT = @(@ViewBag.isQuanTriHT.ToString().ToLower());
+
+    function xemNguoiDung(Id) {
+        openModalWithApi("/NguoiDung/View/" + Id, "lg");
+    };
+    function suaNguoiDung(Id) {
+        ChuyenHuong("external", "/NguoiDung/Edit/" + Id);
+    };
+    function duyetNguoiDung(Id) {
+        toggleButtonContainerLoading(Id);
+        $.ajax({
+            url: '/NguoiDung/Approve/' + Id,
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                showNotification("success", "Duyệt thành công");
+                toggleButtonContainerLoading(Id);
+                $('#search-btn').click();
+            },
+            error: function (xhr, status, error) {
+                showNotification("danger", 'Đã có lỗi xảy ra:', error);
+                toggleButtonContainerLoading(Id);
+            }
+        });
+    };
+    function huyDuyetNguoiDung(Id) {
+        toggleButtonContainerLoading(Id);
+        $.ajax({
+            url: '/NguoiDung/Rejected/' + Id,
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                toggleButtonContainerLoading(Id);
+                showNotification("success", "Hủy duyệt thành công")
+
+                $('#search-btn').click();
+            },
+            error: function (xhr, status, error) {
+                toggleButtonContainerLoading(Id);
+                showNotification("danger", 'Đã có lỗi xảy ra:', error);
+            }
+        });
+    };
+    function xoaNguoiDung(Id) {
+
+        toggleButtonContainerLoading(Id);
+        showNotificationWithConfirm("",
+            () => {
+                $.ajax({
+                    url: '/NguoiDung/Delete/' + Id,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        toggleButtonContainerLoading(Id);
+                        showNotification("warning", "Xóa thành công")
+                        $('#search-btn').click();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error)
+                        showNotification("danger", 'Đã có lỗi xảy ra:' + xhr?.responseJSON?.ex_message);
+                        toggleButtonContainerLoading(Id);
+                    }
+                });
+            }, () => {
+                toggleButtonContainerLoading(Id);
+
+            }
+        )
+
+    };
+    function xoaNguoiDungByQuanTri(Id) {
+
+        toggleButtonContainerLoading(Id);
+        showNotificationWithConfirm("",
+            () => {
+                $.ajax({
+                    url: '/NguoiDung/DeleteNguoiDungByQuanTri/' + Id,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        toggleButtonContainerLoading(Id);
+                        showNotification("warning", "Xóa thành công")
+                        $('#search-btn').click();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error)
+                        showNotification("danger", 'Đã có lỗi xảy ra:' + xhr?.responseJSON?.ex_message);
+                        toggleButtonContainerLoading(Id);
+                    }
+                });
+            }, () => {
+                toggleButtonContainerLoading(Id);
+
+            }
+        )
+
+    };
+    function phanVaiTro(Id) {
+        openModalWithApi("/NguoiDung/PhanVaiTro/" + Id, "xl");
+    }
+    $(document).ready(function () {
+
+
+        var dataGridInstance = $('#data-source-4').registerGrid({
+            "columns": [
+                {
+                    "data": 'STT',
+                    "title": "STT",
+                    "render": function (data, type, row, meta) {
+                        return Index = meta.row + meta.settings._iDisplayStart + 1;
+                    },
+                    "orderable": false,
+                    "visible": true,
+                    "width": "50px"
+                },
+                {
+                    "data": 'TenNguoiDung',
+                    "title": "Họ và tên",
+                    "render": function (data, type, row) {
+                        console.log(data)
+                        console.table(row)
+                        return `<a onclick='xemNguoiDung(${row.Id})'>${row.TenNguoiDung}</a>`;
+                    },
+                    "orderable": true,
+                    "visible": true
+                },
+                {
+                    "data": 'TenDangNhap',
+                    "title": "Tên đăng nhập",
+                    "render": function (data, type, row) {
+                        return data;
+                    },
+                    "orderable": true,
+                    "visible": true
+                },
+                {
+                    "data": 'Email',
+                    "title": "Email",
+                    "render": function (data, type, row) {
+                        return data;
+                    },
+                    "orderable": true,
+                    "visible": true
+                },
+                {
+                    "data": 'ModerationStatus',
+                    "title": "Trạng thái kiểm duyệt",
+                    "render": function (data, type, row) {
+                        var trangThai = "Bị khóa";
+                        if (data == 0) {
+                            trangThai = "Hoạt động";
+                        }
+
+                        return `<td> <span class="badge rounded-pill ${getModerationStatusClass(row.ModerationStatus)}">${trangThai}</span></td`;
+                    },
+                    "orderable": true,
+                },
+
+                {
+                    "data": '',
+                    "title": "Chức năng",
+                    "render": function (data, type, row) {
+                        console.log(row.ModerationStatus)
+                        var html = `<div class='button-container-in-grid button-container-${row.Id}'>`;
+                        html += `<a href='#' title="Phân quyền " onclick='phanVaiTro(${row.Id})'><i class="fa fa-plus" aria-hidden="true"></i></a>`
+                        html += `<a href='#' title="Sửa " data-permission="000001002" onclick='suaNguoiDung(${row.Id})'><i class="fa fa-pencil" aria-hidden="true"></i></a>`
+                        if (row.ModerationStatus != 0)
+                            html += `<a href='#' title="Duyệt " data-permission="000001004" onclick='duyetNguoiDung(${row.Id})'><i class="fa fa-check" aria-hidden="true"></i></a>`
+                        else
+                            html += ` <a href='#' title="Hủy duyệt" data-permission="000001004" onclick='huyDuyetNguoiDung(${row.Id})'><i class="fa fa-times" aria-hidden="true"></i></a>`
+
+                        html += ` <a href='#' title="Xóa" data-permission="000001003" onclick='xoaNguoiDung(${row.Id})'><i class="fa fa-trash-o" aria-hidden="true"></i></a>`
+                        if (isQuanTriHT) html += ` <a href='#' title="Xóa người dùng" data-permission="000001003" onclick='xoaNguoiDungByQuanTri(${row.Id})'><i class="fa fa fa-eraser" aria-hidden="true"></i></a>`
+                        return html += "</div>";
+                    },
+                    "orderable": false,
+                    "width": "150px"
+                }
+
+            ],
+            length: 20,
+            endpoint: "/NguoiDung/GetPaged",
+            prepareRequest: function (d) {
+                d.SearchIn = ["TenNguoiDung", "TenDangNhap", "Email"];
+                d.Keyword = $('#search-input').val();
+                var t_gridRequest = {
+                    "skip": d.start,
+                    "page": (d.start / d.length) + 1,
+                    "pageSize": d.length
+                };
+                d.t_gridRequest = JSON.stringify(t_gridRequest);
+                return d;
+            },
+
+            // dataBound: function () {
+            //     // $('.dataTables_processing').hide();
+            //     // console.log("load xong dữ liệu")
+            // },
+
+        });
+        $('#search-btn').registerButton({
+            type: 'primary',
+            icon: "fa fa-search",
+            clickHandler: function () {
+                return new Promise(function (resolve) {
+                    var grid = dataGridInstance;
+                    grid.page(0);//chuyển về trang đầu
+                    grid.ajax.reload(null, false);
+                    resolve();//cờ xác định kết thúc
+                });
+            }
+        });
+        $('#exportExcel').registerButton({
+            type: 'info',
+            icon: "fa fa-file-excel-o",
+            clickHandler: function () {
+                var grid = dataGridInstance;
+                return new Promise(function (resolve, reject) {
+                    $.post("/NguoiDung/ExportDataToExcel", {
+                        "SearchIn": ["TenNguoiDung", "TenDangNhap", "Email"],
+                        "Keyword": $('#search-input').val()
+                    })
+                        .done(function (data) {
+                            console.log(data)
+                            ChuyenHuong("external", `/Files/ExportExcel?file=${data}`, "new_tab")
+                            resolve(); // Kết thúc promise
+                        })
+                        .fail(function (xhr, status, error) {
+                            console.log(xhr);
+                            showNotification("danger", 'Đã có lỗi xảy ra:', error);
+                            reject(error); // Kết thúc promise với lỗi
+                        });
+                });
+
+            }
+        });
+
+        $("#search-input").enterKey(function () {
+            var button = $('#search-btn');
+            if (!button.hasClass("loading"))
+                $('#search-btn').click();
+        });
+
+        $('#datetime-local').datepicker({
+            language: 'vi',
+
+        })
+
+        checkPermissions();
+    });
+</script>

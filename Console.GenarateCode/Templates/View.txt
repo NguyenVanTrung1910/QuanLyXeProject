@@ -1,4 +1,4 @@
-﻿@model Domain.Models.@Entity@
+﻿@model Domain.Entities.@Entity@_Entity
 
 
 <div class="table-responsive invoice-table custom-scrollbar" id="table">

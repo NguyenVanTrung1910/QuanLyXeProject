@@ -71,7 +71,8 @@ namespace Domain.Querys.Base
 			}
 			set { }
 		}
-
+		[NotMapped]
+		public int CurrentUserId { get; set; }
 
 		public CoreEntity()
 		{

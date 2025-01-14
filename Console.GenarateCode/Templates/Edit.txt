@@ -2,7 +2,7 @@
     ViewBag.Title = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@model Domain.Models.@Entity@
+@model Domain.Entities.@Entity@_Entity
 
 
 <script>

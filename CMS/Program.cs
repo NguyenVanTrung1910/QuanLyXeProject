@@ -1,19 +1,33 @@
-using Application.Interfaces;
-using Application.Services;
-using Domain.IRepositories.SqlServer;
-using Infrastructure.DependencyInjection;
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddSession();
-builder.Services.AddControllersWithViews()
-    .AddJsonOptions(options =>
-    {
+    using Application.Interfaces;
+    using Application.Services;
+    using Domain.IRepositories.SqlServer;
+    using Infrastructure.DependencyInjection;
+    using Microsoft.AspNetCore.Authentication.Cookies;
 
-        //options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-        options.JsonSerializerOptions.PropertyNamingPolicy = null;
-        options.JsonSerializerOptions.IgnoreNullValues = true;
-        // Hoặc options.JsonSerializerOptions.DictionaryKeyPolicy = null; nếu cần với Dictionary
+
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Services.AddInfrastructureServices(builder.Configuration);
+    builder.Services.AddSession();
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddControllersWithViews()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = null;
+            options.JsonSerializerOptions.IgnoreNullValues = true;
+        });
+
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";  
+        options.LogoutPath = "/Account/Logout";  
+        options.AccessDeniedPath = "/Account/ErrorPage";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);  
+        options.SlidingExpiration = true;  
     });
 
 
@@ -21,45 +35,48 @@ builder.Services.AddControllersWithViews()
 
 
 
+    #region Đăng ký Service
 
-
-#region Đăng ký Service
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IUserService, UserService>();
-
-
-
-
-#endregion
+    builder.Services.AddScoped<INguoiDungService, NguoiDungService>();
+    builder.Services.AddScoped<IVaiTroService, VaiTroService>();
+    builder.Services.AddScoped<IMenuQuanTriService, MenuQuanTriService>();
+    builder.Services.AddScoped<IMenuNguoiDungService, MenuNguoiDungService>();
+    builder.Services.AddScoped<IQuyenSuDungService, QuyenSuDungService>();
 
 
 
 
+    #endregion
 
 
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
 
-app.UseRouting();
+    // Add services to the container.
+    builder.Services.AddControllersWithViews();
 
-app.UseAuthorization();
+    var app = builder.Build();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Product}/{action=Index}/{id?}");
+    // Configure the HTTP request pipeline.
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseExceptionHandler("/Home/Error");
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+    }
+    app.UseAuthentication();
+    app.UseSession();
 
-app.Run();
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+
+    app.UseRouting();
+    app.UseAuthorization();
+
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=NguoiDung}/{action=Index}/{id?}");
+
+    app.Run();
