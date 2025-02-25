@@ -15,7 +15,7 @@ public class Program
     static void Main(string[] args)
     {
         
-        Type entityType = typeof(QuyenSuDung);
+        Type entityType = typeof(NguoiDung);
 
 
         if (entityType != null)
