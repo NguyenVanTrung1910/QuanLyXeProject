@@ -27,7 +27,7 @@ namespace Application.Services
         {
             _QuyenSuDungRepository.ApprovedItem(id);
             _responeActionResult.ex_message = "Duyệt thành công";
-            return _responeActionResult;
+            return _responeActionResult;   
         }
         public ResponeActionResult DisapprovedItem(int id)
         {
