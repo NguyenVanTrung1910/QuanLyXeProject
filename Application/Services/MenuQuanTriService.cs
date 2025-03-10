@@ -14,6 +14,7 @@ namespace Application.Services
         private IVaiTroRepository _VaiTroRepository;
         private readonly ResponeActionResult _responeActionResult;
         public int TotalRecord = 0;
+        public int PK = 0;
 
         public MenuQuanTriService(ResponeActionResult responeActionResult,IMenuQuanTriRepository MenuQuanTriRepository, IMenuNguoiDungRepository menuNguoiDungRepository, IVaiTroRepository vaiTroRepository) 
         {
